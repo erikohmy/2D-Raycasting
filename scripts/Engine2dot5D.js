@@ -225,7 +225,6 @@ class Engine2dot5D {
                 if (added) {
                     this.selection = {
                         type: 'plane',
-                        index: this.world.planes.length-1,
                         target: this.world.planes[this.world.planes.length-1]
                     };
                 }
@@ -238,7 +237,6 @@ class Engine2dot5D {
                     this.world.getPlanesWithinBounds(x1,y1,x2,y2).forEach(plane => {
                         selectedPlanes.push({
                             type: "plane",
-                            index: this.world.planes.indexOf(plane),
                             target: plane
                         });
                     });
@@ -250,7 +248,6 @@ class Engine2dot5D {
                         this.selection = {
                             type: "multiple",
                             target: selectedPlanes,
-                            index: null
                         }
                     }
                 } else {
@@ -258,7 +255,6 @@ class Engine2dot5D {
                     if (plane) {
                         this.selection = {
                             type: 'plane',
-                            index: this.world.planes.indexOf(plane),
                             target: plane
                         };
                     } else {
@@ -282,7 +278,6 @@ class Engine2dot5D {
                 this.world.getPlanesWithinBounds(x1,y1,x2,y2).forEach(plane => {
                     selectedPlanes.push({
                         type: "plane",
-                        index: this.world.planes.indexOf(plane),
                         target: plane
                     });
                 });
@@ -294,7 +289,6 @@ class Engine2dot5D {
                     this.selection = {
                         type: "multiple",
                         target: selectedPlanes,
-                        index: null
                     }
                 }
             }
