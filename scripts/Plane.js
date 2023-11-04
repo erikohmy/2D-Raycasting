@@ -17,6 +17,7 @@ class Plane {
             opacity: 1,
             mirror: false,
             texture: undefined,
+            solid: true
         }
 
         this.p1 = new Vector2D(x1,y1);
@@ -103,6 +104,14 @@ class Plane {
     }
     set editorColor(value) {
         this.options.editorColor = value;
+    }
+
+    // solid
+    get solid() {
+        return this.options.solid;
+    }
+    set solid(value) {
+        this.options.solid = value;
     }
 
     // p1
