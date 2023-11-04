@@ -213,16 +213,18 @@ class Engine2dot5D {
         this.events.on("textureloaded", name => {
             console.info("loaded texture:", name);
             if (Object.values(this.textures).every(t => {return t.loaded || t.failed})) {
-                this.loaded = true;
-                this.render();
+                this.events.trigger("loaded");
             }
         });
         this.events.on("texturefailedtoload", name => {
             console.error("texture could not be loaded:", name);
             if (Object.values(this.textures).every(t => {return t.loaded || t.failed})) {
-                this.loaded = true;
-                this.render();
+                this.events.trigger("loaded");
             }
+        });
+        this.events.on("loaded", () => {
+            this.loaded = true;
+            this.render();
         });
 
         // load textures
