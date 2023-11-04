@@ -54,6 +54,13 @@ class Vector2D {
         this.y = scaled.y;
     }
 
+    // setup tostring
+    toString() {
+        let x = this.x.toFixed(2);
+        let y = this.y.toFixed(2);
+        return `(${x}, ${y})`;
+    }
+
     get x() {
         return this._x;
     }
