@@ -17,6 +17,8 @@ function init() {
             }
         });
     });
+
+    engine.importWorldFromJSON(testworlds["testworld 1"]);
 }
 
 function actionExport() {
