@@ -36,7 +36,7 @@ class Engine2dot5D {
 
     isDraggingGrid = false;
     isAddingPlane = false;
-
+    isFocused = false;
     // helpers
     showGrid = true;
     showNormals = true;
@@ -101,6 +101,16 @@ class Engine2dot5D {
         this.canvas.addEventListener("contextmenu", (event) => {
             this.events.trigger("contextmenu", event);
             event.preventDefault();
+        });
+        this.canvas.addEventListener("focus", event => {
+            this.isFocused = true;
+            this.events.trigger("focus", event);
+            this.render();
+        });
+        this.canvas.addEventListener("blur", event => {
+            this.isFocused = false;
+            this.events.trigger("blur", event);
+            this.render();
         });
 
         // bind keyboard events
