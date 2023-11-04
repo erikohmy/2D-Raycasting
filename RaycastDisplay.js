@@ -8,14 +8,16 @@ class RaycastDisplay {
     constructor(engine, width, height) {
         this.engine = engine;
         this.canvas = document.createElement("canvas");
+
+        this.canvas.height = height;
+        this.canvas.width = width;
+
         this.ctx = this.canvas.getContext("2d")
 		this.ctx.imageSmoothingEnabled = false;
         this.ctx.textRendering = "geometricPrecision";
         this.ctx.translate(0.5, 0.5); // supposedly fixes blurry lines
 
         this.canvas.classList.add("raycast-display");
-        this.canvas.height = height;
-        this.canvas.width = width;
 
         this.size = {
             width: width,
