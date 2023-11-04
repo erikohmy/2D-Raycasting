@@ -76,7 +76,6 @@ class Engine2dot5D {
                 this.mouseDragging = true;
                 this.events.trigger("mousedrag", event);
             }
-            this.render();
         })
         this.canvas.addEventListener("mousedown", event => {
             // important to update position where the mouse is, or bugs will happen
@@ -92,8 +91,6 @@ class Engine2dot5D {
             } else if (event.which == 3) {
                 this.events.trigger("mouserightdown", event);
             }
-
-            this.render();
         });
         this.canvas.addEventListener("mouseup", event => {
             this.events.trigger("mouseup", event);
@@ -109,8 +106,6 @@ class Engine2dot5D {
             } else if (event.which == 3) {
                 this.events.trigger("mouserightup", event);
             }
-            
-            this.render();
         })
         this.canvas.addEventListener("contextmenu", (event) => {
             this.events.trigger("contextmenu", event);
@@ -119,12 +114,10 @@ class Engine2dot5D {
         this.canvas.addEventListener("focus", event => {
             this.isFocused = true;
             this.events.trigger("focus", event);
-            this.render();
         });
         this.canvas.addEventListener("blur", event => {
             this.isFocused = false;
             this.events.trigger("blur", event);
-            this.render();
         });
 
         // bind keyboard events
@@ -134,7 +127,6 @@ class Engine2dot5D {
                 this.keysDown.push(keyPressed);
                 this.events.trigger("keydown", keyPressed);
             }
-            this.render();
         });
         this.canvas.addEventListener("keyup", event => {
             let keyPressed = event.key;
@@ -330,7 +322,6 @@ class Engine2dot5D {
         this.events.on("loaded", () => {
             this.loaded = true;
             console.log("engine loaded");
-            this.render();
         });
 
         // load textures
@@ -424,7 +415,7 @@ class Engine2dot5D {
 
     loop() {
         if (this.loaded) {
-            //this.render(); // was laggy
+            this.render();
             let moveForward = this.keysDown.indexOf(this.controls.moveForward) != -1
             if ( moveForward || this.keysDown.indexOf(this.controls.moveBackward) != -1 ) {
                 let speed = 3;
@@ -434,8 +425,6 @@ class Engine2dot5D {
                 // keep editor centered on player
                 this.offset.x = this.size.width/2 - this.raycaster.position.x;
                 this.offset.y = this.size.height/2 - this.raycaster.position.y;
-
-                this.render();
             }
 
             let turnLeft = this.keysDown.indexOf(this.controls.turnLeft) != -1;
@@ -444,7 +433,6 @@ class Engine2dot5D {
                 let speed = 2;
                 speed = turnRight ? speed : -speed;
                 this.raycaster.facing = this.raycaster.facing.rotate(speed, 'degrees');
-                this.render();
             }
         }
 
