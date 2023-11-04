@@ -17,6 +17,7 @@ class Engine2dot5D {
     mousePos = {x:0,y:0};
     mousePosPressed = {x:0,y:0};
     mouseDown = false;
+    mouseDragging = false;
 
     keysDown = [];
 
@@ -30,13 +31,18 @@ class Engine2dot5D {
         turnRight: "d",
         moveForward: "w",
         moveBackward: "s",
+        delete: "Delete",
+
+        toolSelect: "1",
+        toolPlane: "2",
     };
 
     selectedTool = "plane"; // plane, select
+    selection = undefined;
 
     isDraggingGrid = false;
     isAddingPlane = false;
-
+    isFocused = false;
     // helpers
     showGrid = true;
     showNormals = true;
@@ -65,13 +71,13 @@ class Engine2dot5D {
 
         // bind mouse events
         this.canvas.addEventListener("mousemove", event => {
-            this.render(); // maybe bad, but its to make sure the mouse is rendered
-
             [this.mousePos.x, this.mousePos.y] = [event.offsetX - this.offset.x, event.offsetY - this.offset.y];
+            if (this.mouseDown) {
+                this.mouseDragging = true;
+                this.events.trigger("mousedrag", event);
+            }
         })
         this.canvas.addEventListener("mousedown", event => {
-            this.render(); // maybe bad, but its to make sure the mouse is rendered
-
             // important to update position where the mouse is, or bugs will happen
             [this.mousePos.x, this.mousePos.y] = [event.offsetX - this.offset.x, event.offsetY - this.offset.y];
 
@@ -90,18 +96,28 @@ class Engine2dot5D {
             this.events.trigger("mouseup", event);
             if (event.which == 1) {
                 this.events.trigger("mouseleftup", event);
+                if (this.mouseDragging) {
+                    this.mouseDragging = false;
+                    this.events.trigger("mousedragend", event);
+                }
                 this.mouseDown = false;
             } else if (event.which == 2) {
                 this.events.trigger("mousemidup", event);
             } else if (event.which == 3) {
                 this.events.trigger("mouserightup", event);
             }
-            
-            this.render(); // maybe bad, but its to make sure the mouse is rendered
         })
         this.canvas.addEventListener("contextmenu", (event) => {
             this.events.trigger("contextmenu", event);
             event.preventDefault();
+        });
+        this.canvas.addEventListener("focus", event => {
+            this.isFocused = true;
+            this.events.trigger("focus", event);
+        });
+        this.canvas.addEventListener("blur", event => {
+            this.isFocused = false;
+            this.events.trigger("blur", event);
         });
 
         // bind keyboard events
@@ -136,9 +152,25 @@ class Engine2dot5D {
                 if (this.isDraggingGrid) {
                     this.events.trigger("draggridstart");
                 }
+            } else if (key == this.controls.toolSelect) {
+                this.selectedTool = "select";
+            } else if (key == this.controls.toolPlane) {
+                this.selectedTool = "plane";
+            } else if (key == this.controls.delete) {
+                if (this.selection) {
+                    if (this.selection.type == "plane") {
+                        this.world.removePlane(this.selection.target);
+                        this.selection = undefined;
+                    } else if (this.selection.type == "multiple") {
+                        this.selection.target.forEach(target => {
+                            if (target.type == "plane") {
+                                this.world.removePlane(target.target);
+                            }
+                        });
+                        this.selection = undefined;
+                    }
+                }
             }
-
-            this.render();
         });
 
         this.events.on("keyup", key => {  // keyup event
@@ -182,21 +214,56 @@ class Engine2dot5D {
                 [p1x, p1y] = this.snapToGrid(p1x,p1y);
                 [p2x, p2y] = this.snapToGrid(p2x,p2y);
 
-                let plane = new Plane(p1x,p1y,p2x,p2y);
-                
-                let color = document.getElementById("optionsColor").value;
-                if (color) {
-                    plane.color = color;
+                let added = this.world.addPlane(new Plane(p1x,p1y,p2x,p2y, {
+                    color: document.getElementById("optionsColor").value || this.getRandomColor(),
+                    texture: document.getElementById("optionsTexture").value || undefined,
+                    mirror: document.getElementById("optionsIsMirror").checked,
+                    opacity:  document.getElementById("optionsOpacity").value,
+                    opaque:  document.getElementById("optionsOpaque").checked,
+                }));
+                if (added) {
+                    this.selection = {
+                        type: 'plane',
+                        index: this.world.planes.length-1,
+                        target: this.world.planes[this.world.planes.length-1]
+                    };
                 }
-
-                let texture = document.getElementById("optionsTexture").value;
-                if (texture) {
-                    plane.texture = texture;
+            }
+            if (this.selectedTool == "select") {
+                if (this.mouseDragging) {
+                    // get all planes with an origin within the selection box
+                    let [x1, y1, x2, y2] = this.getSelectionArea();
+                    let selectedPlanes = [];
+                    this.world.getPlanesWithinBounds(x1,y1,x2,y2).forEach(plane => {
+                        selectedPlanes.push({
+                            type: "plane",
+                            index: this.world.planes.indexOf(plane),
+                            target: plane
+                        });
+                    });
+                    if (selectedPlanes.length == 0) {
+                        this.selection = undefined;
+                    } else if(selectedPlanes.length === 1){
+                        this.selection = selectedPlanes[0];
+                    } else {
+                        this.selection = {
+                            type: "multiple",
+                            target: selectedPlanes,
+                            index: null
+                        }
+                    }
+                } else {
+                    let plane = this.getPlaneAtMouse();
+                    if (plane) {
+                        this.selection = {
+                            type: 'plane',
+                            index: this.world.planes.indexOf(plane),
+                            target: plane
+                        };
+                    } else {
+                        this.selection = undefined;
+                    }
                 }
-                if (document.getElementById("optionsIsMirror").checked) {
-                    plane.isMirror = true;
-                }
-                this.world.addPlane(plane);
             }
         });
         this.events.on("mouserightdown", event => {
@@ -204,7 +271,35 @@ class Engine2dot5D {
             let plane = this.getPlaneAtMouse();
             if (plane) {
                 this.world.removePlane(plane);
+                this.selection = undefined;
             }
+        });
+        this.events.on("mousedrag", event => {  // mousedrag event
+            if (this.selectedTool == "select") {
+                let [x1, y1, x2, y2] = this.getSelectionArea();
+                let selectedPlanes = [];
+                this.world.getPlanesWithinBounds(x1,y1,x2,y2).forEach(plane => {
+                    selectedPlanes.push({
+                        type: "plane",
+                        index: this.world.planes.indexOf(plane),
+                        target: plane
+                    });
+                });
+                if (selectedPlanes.length === 0) {
+                    this.selection = undefined;
+                } else if(selectedPlanes.length === 1){
+                    this.selection = selectedPlanes[0];
+                } else {
+                    this.selection = {
+                        type: "multiple",
+                        target: selectedPlanes,
+                        index: null
+                    }
+                }
+            }
+        });
+        this.events.on("mousedragend", event => {  // mousedragend event
+
         });
         this.events.on("draggridstart", () => {  // draggridstart event 
             this.canvas.classList.add("dragging-grid");
@@ -212,46 +307,86 @@ class Engine2dot5D {
         this.events.on("draggridend", () => {  // draggridend event
             this.canvas.classList.remove("dragging-grid");
         });
-        this.events.on("textureloaded", name => {
-            console.log("loaded texture:", name);
-            this.textures[name].loaded = true;
-
-            if (Object.values(this.textures).every(t => t.loaded)) {
-                this.loaded = true;
-                this.render();
+        this.events.on("textureloaded", texture => {
+            console.info("loaded texture:", texture.name);
+            if (Object.values(this.textures).every(t => {return t.loaded || t.failed})) {
+                this.events.trigger("loaded");
             }
         });
-        
-        this.addTexture("debug", "debug.png", "#60006a");
-        this.addTexture("concrete1", "concrete1.png", "#444");
-        this.addTexture("concrete_pillar", "concretePillar.png", "#444");
-        this.addTexture("grate", "grate1-variant.png", "#33333300");
+        this.events.on("texturefailedtoload", texture => {
+            console.error("texture could not be loaded:", texture.name);
+            if (Object.values(this.textures).every(t => {return t.loaded || t.failed})) {
+                this.events.trigger("loaded");
+            }
+        });
+        this.events.on("loaded", () => {
+            this.loaded = true;
+            console.log("engine loaded");
+        });
 
-        // test inject display into document
+        // load textures
+        this.addTexture("missing", null, "purple");
+        this.addTexture("debug", "resources/debug.png", "#60006a");
+        this.addTexture("concrete1", "resources/concrete1.png", "#444");
+        this.addTexture("concrete_pillar", "resources/concretePillar.png", "#444");
+        this.addTexture("grate", "resources/grate1.png", "#33333300");
+        this.loadTextures();
+
+        // inject display into document
         document.body.appendChild(this.display.canvas);
 
-        let testplane = new Plane(this.gridSize*6,this.gridSize,this.gridSize*6,-this.gridSize, "#000")
-        testplane.texture = "concrete1";
-        this.world.addPlane(testplane);
+        this.world.addPlane(new Plane(this.gridSize*6,this.gridSize,this.gridSize*6,-this.gridSize, {
+            texture: "concrete1",
+        }));
 
         this.loop();
     }
 
     addTexture(name, src, fallback) {
-        let img = new Image();
-        img.onload = () => {
-            this.events.trigger("textureloaded", name);
-            this.textures[name].width = img.width;
-            this.textures[name].height = img.height;
-        }
-        img.src = src;
         this.textures[name] = {
-            img: img,
+            name: name,
+            img: new Image(),
+            src: src,
             loaded: false,
+            failed: false,
             fallback: fallback,
             width: 0,
             height: 0
         };
+    }
+
+    loadTextures() {
+        // for every texture in this.textures
+        for (let key in this.textures) {
+            let texture = this.textures[key];
+            let error = () => {
+                texture.failed = true;
+                texture.img.onload = () => {};
+                texture.img.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACAAQMAAAD58POIAAAABlBMVEXuAP8AAABXLMXMAAAAM0lEQVRIx+XOoQ0AAAzDsP7/dIf3gaWCEKOkzWsdnBMDjAsHnBMDjAsHnBMDjAsHnBMCDgaQ/C593sqdAAAAAElFTkSuQmCC";
+                texture.width = 128;
+                texture.height = 128;
+                if (texture.src !== null) {
+                    delete texture.src;
+                    this.events.trigger("texturefailedtoload", texture);
+                }
+                delete texture.src;
+            }
+            if (texture.src !== null) {
+                let img = texture.img;
+                texture.img.onload = () => {
+                    texture.width = img.width;
+                    texture.height = img.height;
+                    texture.loaded = true;
+                    texture.img.onload = () => {};
+                    delete texture.src;
+                    this.events.trigger("textureloaded", texture);
+                };
+                texture.img.onerror = error;
+                texture.img.src = texture.src;
+            } else {
+                error();
+            }
+        }
     }
 
     exportWorldToJSON() {
@@ -264,9 +399,7 @@ class Engine2dot5D {
                 y1: plane.p1.y,
                 x2: plane.p2.x,
                 y2: plane.p2.y,
-                color: plane.color,
-                texture: plane.texture,
-                isMirror: plane.isMirror,
+                options: plane.options
             });
         });
         return JSON.stringify(data);
@@ -276,27 +409,22 @@ class Engine2dot5D {
         let data = JSON.parse(json);
         this.world.planes = [];
         data.planes.forEach(plane => {
-            let newPlane = new Plane(plane.x1, plane.y1, plane.x2, plane.y2, plane.color);
-            newPlane.texture = plane.texture;
-            newPlane.isMirror = plane.isMirror;
-            this.world.addPlane(newPlane);
+            this.world.addPlane(new Plane(plane.x1, plane.y1, plane.x2, plane.y2, plane.options));
         });
     }
 
     loop() {
         if (this.loaded) {
-            //this.render(); // was laggy
+            this.render();
             let moveForward = this.keysDown.indexOf(this.controls.moveForward) != -1
             if ( moveForward || this.keysDown.indexOf(this.controls.moveBackward) != -1 ) {
                 let speed = 3;
                 speed = moveForward ? speed : -speed;
                 this.raycaster.position = this.raycaster.position.add(this.raycaster.facing.scale(speed));
-                this.raycaster.setupRays();
 
+                // keep editor centered on player
                 this.offset.x = this.size.width/2 - this.raycaster.position.x;
                 this.offset.y = this.size.height/2 - this.raycaster.position.y;
-
-                this.render();
             }
 
             let turnLeft = this.keysDown.indexOf(this.controls.turnLeft) != -1;
@@ -305,8 +433,6 @@ class Engine2dot5D {
                 let speed = 2;
                 speed = turnRight ? speed : -speed;
                 this.raycaster.facing = this.raycaster.facing.rotate(speed, 'degrees');
-                this.raycaster.setupRays();
-                this.render();
             }
         }
 
@@ -332,6 +458,17 @@ class Engine2dot5D {
         return 0;
     }
 
+    getSelectionArea() {
+        let [x1, y1, x2, y2] = [this.mousePosPressed.x, this.mousePosPressed.y, this.mousePos.x, this.mousePos.y];
+        if (x1 > x2) {
+            [x1, x2] = [x2, x1];
+        }
+        if (y1 > y2) {
+            [y1, y2] = [y2, y1];
+        }
+        return  [x1, y1, x2, y2];
+    }
+
     isKeyDown(key) {
         return this.keysDown.includes(key);
     }
@@ -343,6 +480,17 @@ class Engine2dot5D {
     setcolor(color) {
         this.ctx.fillStyle = color;
         this.ctx.strokeStyle = color;
+    }
+    getRandomColor() {
+        let randomColors = [
+            "#FF0000",
+            "#00FF00",
+            "#0000FF",
+            "#FFFF00",
+            "#FF00FF",
+            "#00FFFF",
+        ];   
+        return randomColors[Math.floor(Math.random() * randomColors.length)];
     }
 
     drawpixel(x,y) {
@@ -468,6 +616,49 @@ class Engine2dot5D {
         }
         return null;
     }
+    isSelected(entity) {
+        if (this.selection) {
+            if (this.selection.type == "plane") {
+                return this.selection.target == entity;
+            } else if (this.selection.type == "multiple") {
+                return this.selection.target.some(target => {
+                    return target.target == entity;
+                });
+            }
+        }
+        return false;
+    } 
+
+    // rendering methods
+    renderPlane(plane, origin = undefined) {
+        let selected = false;
+        if (this.selection && this.isSelected(plane)) {
+            this.setcolor("#f00");
+            selected = true;
+        } else {
+            this.setcolor(plane.editorColor);
+        }
+        if (origin == undefined) {
+            plane = plane.copy();
+        }
+
+        this.drawLine( plane.p1.x, plane.p1.y, plane.p2.x, plane.p2.y)
+
+        if (this.showNormals) {
+            this.setcolor("#d00");
+            let normalEnd = plane.origin.add(plane.normal.scale(10));
+            this.drawLine( plane.origin.x, plane.origin.y, normalEnd.x, normalEnd.y)
+        }
+        // for when we can actually edit planes
+        if (false && selected) {
+            this.setcolor("#f00");
+            this.fillCircle( plane.p1.x, plane.p1.y, 4)
+            this.fillCircle( plane.p2.x, plane.p2.y, 4)
+        } else if(selected) {
+            this.setcolor("#f00");
+            this.fillCircle( plane.origin.x, plane.origin.y, 4)
+        }
+    }
 
     //
     render() {
@@ -487,20 +678,7 @@ class Engine2dot5D {
 
         // render planes
         this.world.planes.forEach(plane => {
-            if (plane.isTextured) {
-                let texture = this.textures[plane.texture];
-                this.setcolor(texture.fallback);
-            } else {
-                this.setcolor(plane.color);
-            }
-            
-            this.drawLine( plane.p1.x, plane.p1.y, plane.p2.x, plane.p2.y)
-
-            if (this.showNormals) {
-                this.setcolor("#d00");
-                let normalEnd = plane.origin.add(plane.normal.scale(10));
-                this.drawLine( plane.origin.x, plane.origin.y, normalEnd.x, normalEnd.y)
-            }
+            this.renderPlane(plane);
         });
 
         // origin
@@ -514,7 +692,7 @@ class Engine2dot5D {
         this.renderCursor()
         */
 
-        // temporary test, handle for real
+        // Draw a representation of the plane being added
         if (this.isAddingPlane) {
             let p1x = this.mousePosPressed.x;
             let p1y = this.mousePosPressed.y;
@@ -524,10 +702,23 @@ class Engine2dot5D {
             [p1x, p1y] = this.snapToGrid(p1x,p1y);
             [p2x, p2y] = this.snapToGrid(p2x,p2y);
 
+            if (!(p1x == p2x && p1y == p2y)) {
+                this.renderPlane(new Plane(p1x,p1y,p2x,p2y));
+                this.setcolor("#f00");
+                this.fillCircle( p1x, p1y, 4)
+                this.fillCircle( p2x, p2y, 4)
+            }
+        }
+
+        if (this.mouseDragging && this.selectedTool == "select") {
+            let x1 = this.mousePosPressed.x;
+            let y1 = this.mousePosPressed.y;
+            let x2 = this.mousePos.x;
+            let y2 = this.mousePos.y;
+
+            // draw a bounding box around the selection
             this.setcolor("#f00");
-            this.drawLine( p1x, p1y, p2x, p2y)
-            this.fillCircle( p1x, p1y, 4)
-            this.fillCircle( p2x, p2y, 4)
+            this.drawRect( x1, y1, x2 - x1, y2 - y1);
         }
 
         // render the scene
@@ -535,15 +726,12 @@ class Engine2dot5D {
             let hits = this.raycaster.intersect(this.world.planes);
             this.display.render(hits);
 
-            // render a cone for the raycaster 
-            let firstRay =  this.raycaster.rays[0];
-            let lastRay = this.raycaster.rays[this.raycaster.rays.length-1];
-            let facingleftedge = firstRay.origin.add(firstRay.direction.scale(1000));
-            let facingrightedge = lastRay.origin.add(lastRay.direction.scale(1000));
+            // render raycaster
             this.setcolor("#f00");
-            this.fillCircle(this.raycaster.position.x, this.raycaster.position.y, 10);
-            this.drawLine( firstRay.origin.x, firstRay.origin.y, facingleftedge.x, facingleftedge.y);
-            this.drawLine( lastRay.origin.x, lastRay.origin.y, facingrightedge.x, facingrightedge.y);
+            this.fillCircle(this.raycaster.position.x, this.raycaster.position.y, 5);   
+            let facing = this.raycaster.facing.scale(15);
+            let lineEnd = this.raycaster.position.add(facing);
+            this.drawLine( this.raycaster.position.x, this.raycaster.position.y, lineEnd.x, lineEnd.y);
         }
     }
 }

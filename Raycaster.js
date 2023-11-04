@@ -4,16 +4,11 @@ class Raycaster {
     _fov = 90;
     _resolution;
 
-    rays = [];
-
     constructor(position, facing, resolution, fov = 90) {
         this.position = position;
         this.facing = facing;
         this.resolution = resolution;
         this.fov = fov;
-
-        // temp, auto update this when anything changes
-        this.setupRays();
     }
 
     get position() {
@@ -44,46 +39,15 @@ class Raycaster {
         this._fov = fov;
     }
 
-    setupRays() {
-        this.rays = [];
-        let step = this.fov / this.resolution;
-        let angle = this.facing.degrees - this.fov/2;
-        for(let i = 0; i < this.resolution; i++) {
-            let direction = Vector2D.fromAngle(angle)
-            let ray = new Ray(this.position, direction);
-            this.rays.push(ray);
-            angle += step;
-        }
-    }
-
-    intersectOld(planes) { 
-        let hits = [];
-        for(let ray of this.rays) {
-            let stack = [];
-            for(let plane of planes) {
-                let hit = ray.intersectPlane(plane);
-                if (hit) {
-                    //let B = Vector2D.d2r(90 - (this.facing.degrees - ray.direction.degrees) );
-                    let B = 180 - (90 - (ray.direction.degrees - this.facing.degrees));
-                    //let A = 180 - B - 90;
-                    //hit.angle = A + " + " + B + " + " + 90 + " = " + (A + B + 90)
-                    hit.distance_n = hit.distance * Math.sin(Vector2D.d2r(B));
-                    stack.push(hit);
-                    if (plane.isOpaque) {
-                        break;
-                    }
-                }
-            }
-            // sort stack by distance
-            stack.sort((a,b) => a.distance - b.distance);
-            hits.push(stack);
-        }
-        return hits;
-    }
-
     intersect(planes) {
         let hits = [];
-        for(let ray of this.rays) {
+        let step = this.fov / this.resolution;
+        let angle = this.facing.degrees - this.fov/2;
+        let ray = new Ray(this.position, null);
+
+        for(let i = 0; i < this.resolution; i++) {
+            let direction = Vector2D.fromAngle(angle)
+            ray.direction = direction;
             let stack = ray.intersectPlanes(planes);
             for(let hit of stack) {
                 let B = 180 - (90 - (ray.direction.degrees - this.facing.degrees));
@@ -91,7 +55,9 @@ class Raycaster {
             }
             stack.sort((a,b) => a.distance - b.distance);
             hits.push(stack);
+            angle += step;
         }
+        
         return hits;
     }
 }
@@ -151,7 +117,7 @@ class Ray {
 
         let hits = [];
         for(let hit of rawhits) {
-            if (hit.target.isMirror) {
+            if (hit.target.mirror) {
                 // allow up to 16 reflections
                 if(depth > 16) {
                     hits.push(hit);
@@ -169,19 +135,13 @@ class Ray {
                 break;
             }
             hits.push(hit);
-            if (hit.target.isOpaque) {
+            if (hit.target.opaque) {
                 break;
             }
         }
 
         hits.sort((a,b) => a.distance - b.distance);
 
-        /*
-        if (plane.isMirror) {
-            let ref_ray = new Ray(hit.point, this.direction.reflect(hit.target.normal));
-            return ref_ray.intersectPlanes(planes);
-        }
-        */
         return hits;
     }
 }
