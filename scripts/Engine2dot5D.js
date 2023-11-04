@@ -450,19 +450,29 @@ class Engine2dot5D {
                             }
                         }
                     });
-                    if (closestHit != undefined) {
+                    if (closestHit != undefined && !isNaN(closestHit.distance)) {
+                        closestHit.distance = closestHit.distance - width/2;
                         hits.push(closestHit);
                     }
                 });
 
-                window.debug_colliderHits = hits;
                 let velocity = direction.normalize().scale(speed);
 
-                for (let i = 0; i < hits.length; i++) {
-                    let hit = hits[i];
-                    let closestDistance = hit.distance - width/2;
+                // handle cramped spaces
+                let cramped = false;
+                if (hits.length > 1) {
+                    let d1 = hits[0].distance;
+                    let d2 =hits[hits.length-1].distance;
+                    if (d1 < speed && d2 < speed) {
+                        velocity.magnitude = Math.min(d1,d2);
+                        cramped = true;
+                    }
+                }
 
-                    if(!isNaN(closestDistance)) {
+                if (!cramped) {
+                    for (let i = 0; i < hits.length; i++) {
+                        let hit = hits[i];
+                        let closestDistance = hit.distance;
                         let closestPoint = hit.point;
                         let closestPlane = hit.target;
 
@@ -798,13 +808,6 @@ class Engine2dot5D {
             let facing = this.raycaster.facing.scale(15);
             let lineEnd = this.raycaster.position.add(facing);
             this.drawLine( this.raycaster.position.x, this.raycaster.position.y, lineEnd.x, lineEnd.y);
-        }
-
-        if (window.debug_colliderHits) {
-            this.setcolor("#f00");
-            window.debug_colliderHits.forEach(hit => {
-                this.drawCircle(hit.point.x, hit.point.y, 2);
-            });
         }
     }
 }
