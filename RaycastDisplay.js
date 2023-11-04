@@ -15,7 +15,6 @@ class RaycastDisplay {
         this.ctx = this.canvas.getContext("2d")
 		this.ctx.imageSmoothingEnabled = false;
         this.ctx.textRendering = "geometricPrecision";
-        this.ctx.translate(0.5, 0.5); // supposedly fixes blurry lines
 
         this.canvas.classList.add("raycast-display");
 
@@ -55,6 +54,8 @@ class RaycastDisplay {
     }
 
     drawImageSlice(img,sx,sy,sw,sh,x,y,w,h) {
+        sx = Math.floor(sx);
+        sy = Math.floor(sy);
         this.ctx.drawImage(img,sx,sy,sw,sh,x,y,w,h);
     }
 
