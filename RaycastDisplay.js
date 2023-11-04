@@ -4,6 +4,8 @@ class RaycastDisplay {
     ctx;
     size;
     sliceheight;
+    frames = 0;
+    fps = 0;
 
     constructor(engine, width, height) {
         this.engine = engine;
@@ -30,6 +32,10 @@ class RaycastDisplay {
             this.engine.canvas.focus();
         });
 
+        setInterval(() => {
+            this.fps = this.frames;
+            this.frames = 0;
+        }, 1000);
     }
 
     clearScreen() {
@@ -49,7 +55,7 @@ class RaycastDisplay {
         this.ctx.font = "bold " + size + "px sans-serif";
         this.ctx.textAlign = align;
         this.ctx.textBaseline = "middle";
-        this.ctx.fillText(text, this.size.width/2, this.size.height/2);
+        this.ctx.fillText(text, x, y);
     }
 
     drawImageSlice(img,sx,sy,sw,sh,x,y,w,h) {
@@ -103,5 +109,11 @@ class RaycastDisplay {
             this.setcolor("#fff");
             this.drawText("Click to focus", this.size.width/2, this.size.height/2);
         }
+
+        // show fps
+        this.setcolor("#fff");
+        this.drawText(this.fps + " FPS", 3, 7, 8, "left");
+
+        this.frames++;
     }
 }

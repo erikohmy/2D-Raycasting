@@ -4,16 +4,11 @@ class Raycaster {
     _fov = 90;
     _resolution;
 
-    rays = [];
-
     constructor(position, facing, resolution, fov = 90) {
         this.position = position;
         this.facing = facing;
         this.resolution = resolution;
         this.fov = fov;
-
-        // temp, auto update this when anything changes
-        this.setupRays();
     }
 
     get position() {
@@ -44,21 +39,15 @@ class Raycaster {
         this._fov = fov;
     }
 
-    setupRays() {
-        this.rays = [];
-        let step = this.fov / this.resolution;
-        let angle = this.facing.degrees - this.fov/2;
-        for(let i = 0; i < this.resolution; i++) {
-            let direction = Vector2D.fromAngle(angle)
-            let ray = new Ray(this.position, direction);
-            this.rays.push(ray);
-            angle += step;
-        }
-    }
-
     intersect(planes) {
         let hits = [];
-        for(let ray of this.rays) {
+        let step = this.fov / this.resolution;
+        let angle = this.facing.degrees - this.fov/2;
+        let ray = new Ray(this.position, null);
+
+        for(let i = 0; i < this.resolution; i++) {
+            let direction = Vector2D.fromAngle(angle)
+            ray.direction = direction;
             let stack = ray.intersectPlanes(planes);
             for(let hit of stack) {
                 let B = 180 - (90 - (ray.direction.degrees - this.facing.degrees));
@@ -66,7 +55,9 @@ class Raycaster {
             }
             stack.sort((a,b) => a.distance - b.distance);
             hits.push(stack);
+            angle += step;
         }
+        
         return hits;
     }
 }

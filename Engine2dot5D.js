@@ -430,7 +430,6 @@ class Engine2dot5D {
                 let speed = 3;
                 speed = moveForward ? speed : -speed;
                 this.raycaster.position = this.raycaster.position.add(this.raycaster.facing.scale(speed));
-                this.raycaster.setupRays();
 
                 // keep editor centered on player
                 this.offset.x = this.size.width/2 - this.raycaster.position.x;
@@ -445,7 +444,6 @@ class Engine2dot5D {
                 let speed = 2;
                 speed = turnRight ? speed : -speed;
                 this.raycaster.facing = this.raycaster.facing.rotate(speed, 'degrees');
-                this.raycaster.setupRays();
                 this.render();
             }
         }
@@ -740,15 +738,12 @@ class Engine2dot5D {
             let hits = this.raycaster.intersect(this.world.planes);
             this.display.render(hits);
 
-            // render a cone for the raycaster 
-            let firstRay =  this.raycaster.rays[0];
-            let lastRay = this.raycaster.rays[this.raycaster.rays.length-1];
-            let facingleftedge = firstRay.origin.add(firstRay.direction.scale(1000));
-            let facingrightedge = lastRay.origin.add(lastRay.direction.scale(1000));
+            // render raycaster
             this.setcolor("#f00");
-            this.fillCircle(this.raycaster.position.x, this.raycaster.position.y, 10);
-            this.drawLine( firstRay.origin.x, firstRay.origin.y, facingleftedge.x, facingleftedge.y);
-            this.drawLine( lastRay.origin.x, lastRay.origin.y, facingrightedge.x, facingrightedge.y);
+            this.fillCircle(this.raycaster.position.x, this.raycaster.position.y, 5);   
+            let facing = this.raycaster.facing.scale(15);
+            let lineEnd = this.raycaster.position.add(facing);
+            this.drawLine( this.raycaster.position.x, this.raycaster.position.y, lineEnd.x, lineEnd.y);
         }
     }
 }
