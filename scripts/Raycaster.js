@@ -62,8 +62,8 @@ class Raycaster {
 }
 
 class Ray {
-    constructor(origin, facing) {
-        this.origin = origin;
+    constructor(position, facing) {
+        this.position = position;
         this.facing = facing;
     }
 
@@ -86,7 +86,7 @@ class Ray {
 
     intersectPlane(plane) {
         let dirScaled = this.facing.scale(100000);
-        let [x1,y1,x2,y2,x3,y3,x4,y4] = [this.origin.x,this.origin.y,this.origin.x + dirScaled.x,this.origin.y + dirScaled.y,plane.p1.x,plane.p1.y,plane.p2.x,plane.p2.y];
+        let [x1,y1,x2,y2,x3,y3,x4,y4] = [this.position.x,this.position.y,this.position.x + dirScaled.x,this.position.y + dirScaled.y,plane.p1.x,plane.p1.y,plane.p2.x,plane.p2.y];
         let intersection = this.line_intersect(x1,y1,x2,y2,x3,y3,x4,y4);
         if (intersection !== null && intersection.seg1 && intersection.seg2) {
             let point = new Vector2D(intersection.x,intersection.y)
@@ -94,7 +94,7 @@ class Ray {
                 point: point,
                 coordinate: 1 - Math.min(1, Math.max(0, intersection.ub)),
                 target: plane,
-                distance: this.origin.distanceTo(point)
+                distance: this.position.distanceTo(point)
             }
         }
         return undefined;
