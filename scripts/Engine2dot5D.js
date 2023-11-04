@@ -308,7 +308,6 @@ class Engine2dot5D {
             this.canvas.classList.remove("dragging-grid");
         });
         this.events.on("textureloaded", texture => {
-            console.info("loaded texture:", texture.name);
             if (Object.values(this.textures).every(t => {return t.loaded || t.failed})) {
                 this.events.trigger("loaded");
             }
@@ -321,7 +320,9 @@ class Engine2dot5D {
         });
         this.events.on("loaded", () => {
             this.loaded = true;
-            console.log("engine loaded");
+            let loaded = Object.values(this.textures).filter(t => t.loaded).length;
+            let failed = Object.values(this.textures).filter(t => t.failed).length;
+            console.log("loaded " + loaded + " textures,", failed + " failed to load");
         });
 
         // load textures
