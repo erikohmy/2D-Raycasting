@@ -220,6 +220,7 @@ class Engine2dot5D {
                     mirror: document.getElementById("optionsIsMirror").checked,
                     opacity:  document.getElementById("optionsOpacity").value,
                     opaque:  document.getElementById("optionsOpaque").checked,
+                    solid: document.getElementById("optionsSolid").checked,
                 }));
                 if (added) {
                     this.selection = {
@@ -322,7 +323,7 @@ class Engine2dot5D {
             this.loaded = true;
             let loaded = Object.values(this.textures).filter(t => t.loaded).length;
             let failed = Object.values(this.textures).filter(t => t.failed).length;
-            console.log("loaded " + loaded + " textures,", failed + " failed to load");
+            console.log("loaded " + loaded + " textures", failed ? failed + " failed to load" : "");
         });
 
         // load textures
@@ -361,14 +362,16 @@ class Engine2dot5D {
         for (let key in this.textures) {
             let texture = this.textures[key];
             let error = () => {
-                texture.failed = true;
                 texture.img.onload = () => {};
                 texture.img.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACAAQMAAAD58POIAAAABlBMVEXuAP8AAABXLMXMAAAAM0lEQVRIx+XOoQ0AAAzDsP7/dIf3gaWCEKOkzWsdnBMDjAsHnBMDjAsHnBMDjAsHnBMCDgaQ/C593sqdAAAAAElFTkSuQmCC";
                 texture.width = 128;
                 texture.height = 128;
                 if (texture.src !== null) {
+                    texture.failed = true;
                     delete texture.src;
                     this.events.trigger("texturefailedtoload", texture);
+                } else {
+                    texture.loaded = true;
                 }
                 delete texture.src;
             }
