@@ -420,8 +420,50 @@ class Engine2dot5D {
             let moveForward = this.keysDown.indexOf(this.controls.moveForward) != -1
             if ( moveForward || this.keysDown.indexOf(this.controls.moveBackward) != -1 ) {
                 let speed = 3;
+                let width = 10;
+
+                let direction = this.raycaster.facing.copy();
+                if (!moveForward) {
+                    direction = direction.scale(-1);
+                }
+
+                // create three rays, one in the center, one on the left, and one on the right of the player, offset by half the width of the player
+                let colliderCenter = new Ray(this.raycaster.position, direction);
+                let colliderLeft = new Ray(this.raycaster.position.add(direction.rotate(90, 'degrees').scale(width/2)), direction);
+                let colliderRight = new Ray(this.raycaster.position.add(direction.rotate(-90, 'degrees').scale(width/2)), direction);
+
+                // get all planes that intersect with the rays
+                let hits = [
+                    ...colliderCenter.intersectPlanes(this.world.planes),
+                    ...colliderLeft.intersectPlanes(this.world.planes),
+                    ...colliderRight.intersectPlanes(this.world.planes)
+                ];
+
+                // get the closest plane that is solid
+                let closestPlane = undefined;
+                let closestDistance = undefined;
+                hits.forEach(hit => {
+                    if (hit.target.solid) {
+                        if (closestDistance == undefined || hit.distance < closestDistance) {
+                            closestPlane = hit.target;
+                            closestDistance = hit.distance;
+                        }
+                    }
+                });
+                closestDistance = closestDistance - width/2;
+
+                if(!isNaN(closestDistance)) {
+                    if (closestDistance < speed) {
+                        speed = closestDistance;
+                    }
+                }
+
                 speed = moveForward ? speed : -speed;
-                this.raycaster.position = this.raycaster.position.add(this.raycaster.facing.scale(speed));
+
+                if (speed > 0.0001 || speed < -0.0001) {
+                    this.raycaster.position = this.raycaster.position.add(this.raycaster.facing.scale(speed));
+                }
+                
 
                 // keep editor centered on player
                 this.offset.x = this.size.width/2 - this.raycaster.position.x;
