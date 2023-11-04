@@ -229,7 +229,7 @@ class Engine2dot5D {
         this.addTexture("debug", "resources/debug.png", "#60006a");
         this.addTexture("concrete1", "resources/concrete1.png", "#444");
         this.addTexture("concrete_pillar", "resources/concretePillar.png", "#444");
-        this.addTexture("grate", "resources/grate1-variant.png", "#33333300");
+        this.addTexture("grate", "resources/grate1.png", "#33333300");
 
         // inject display into document
         document.body.appendChild(this.display.canvas);
