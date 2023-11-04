@@ -38,11 +38,27 @@ class Vector2D {
         return degrees * (Math.PI/180);
     }
 
+    static r2d(angle) {
+        return angle * (180/Math.PI);
+    }
+
     get magnitude() {
         if (this.cachedMagnitude == undefined) {
             this.cachedMagnitude = Math.sqrt(this.x*this.x+this.y*this.y);
         }
         return this.cachedMagnitude;
+    }
+    set magnitude(value) {
+        let scaled = this.normalize().scale(value);
+        this.x = scaled.x;
+        this.y = scaled.y;
+    }
+
+    // setup tostring
+    toString() {
+        let x = this.x.toFixed(2);
+        let y = this.y.toFixed(2);
+        return `(${x}, ${y})`;
     }
 
     get x() {

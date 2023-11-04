@@ -220,11 +220,11 @@ class Engine2dot5D {
                     mirror: document.getElementById("optionsIsMirror").checked,
                     opacity:  document.getElementById("optionsOpacity").value,
                     opaque:  document.getElementById("optionsOpaque").checked,
+                    solid: document.getElementById("optionsSolid").checked,
                 }));
                 if (added) {
                     this.selection = {
                         type: 'plane',
-                        index: this.world.planes.length-1,
                         target: this.world.planes[this.world.planes.length-1]
                     };
                 }
@@ -237,7 +237,6 @@ class Engine2dot5D {
                     this.world.getPlanesWithinBounds(x1,y1,x2,y2).forEach(plane => {
                         selectedPlanes.push({
                             type: "plane",
-                            index: this.world.planes.indexOf(plane),
                             target: plane
                         });
                     });
@@ -249,7 +248,6 @@ class Engine2dot5D {
                         this.selection = {
                             type: "multiple",
                             target: selectedPlanes,
-                            index: null
                         }
                     }
                 } else {
@@ -257,7 +255,6 @@ class Engine2dot5D {
                     if (plane) {
                         this.selection = {
                             type: 'plane',
-                            index: this.world.planes.indexOf(plane),
                             target: plane
                         };
                     } else {
@@ -281,7 +278,6 @@ class Engine2dot5D {
                 this.world.getPlanesWithinBounds(x1,y1,x2,y2).forEach(plane => {
                     selectedPlanes.push({
                         type: "plane",
-                        index: this.world.planes.indexOf(plane),
                         target: plane
                     });
                 });
@@ -293,7 +289,6 @@ class Engine2dot5D {
                     this.selection = {
                         type: "multiple",
                         target: selectedPlanes,
-                        index: null
                     }
                 }
             }
@@ -308,7 +303,6 @@ class Engine2dot5D {
             this.canvas.classList.remove("dragging-grid");
         });
         this.events.on("textureloaded", texture => {
-            console.info("loaded texture:", texture.name);
             if (Object.values(this.textures).every(t => {return t.loaded || t.failed})) {
                 this.events.trigger("loaded");
             }
@@ -321,7 +315,9 @@ class Engine2dot5D {
         });
         this.events.on("loaded", () => {
             this.loaded = true;
-            console.log("engine loaded");
+            let loaded = Object.values(this.textures).filter(t => t.loaded).length;
+            let failed = Object.values(this.textures).filter(t => t.failed).length;
+            console.log("loaded " + loaded + " textures", failed ? failed + " failed to load" : "");
         });
 
         // load textures
@@ -360,14 +356,16 @@ class Engine2dot5D {
         for (let key in this.textures) {
             let texture = this.textures[key];
             let error = () => {
-                texture.failed = true;
                 texture.img.onload = () => {};
                 texture.img.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACAAQMAAAD58POIAAAABlBMVEXuAP8AAABXLMXMAAAAM0lEQVRIx+XOoQ0AAAzDsP7/dIf3gaWCEKOkzWsdnBMDjAsHnBMDjAsHnBMDjAsHnBMCDgaQ/C593sqdAAAAAElFTkSuQmCC";
                 texture.width = 128;
                 texture.height = 128;
                 if (texture.src !== null) {
+                    texture.failed = true;
                     delete texture.src;
                     this.events.trigger("texturefailedtoload", texture);
+                } else {
+                    texture.loaded = true;
                 }
                 delete texture.src;
             }
@@ -419,9 +417,84 @@ class Engine2dot5D {
             let moveForward = this.keysDown.indexOf(this.controls.moveForward) != -1
             if ( moveForward || this.keysDown.indexOf(this.controls.moveBackward) != -1 ) {
                 let speed = 3;
-                speed = moveForward ? speed : -speed;
-                this.raycaster.position = this.raycaster.position.add(this.raycaster.facing.scale(speed));
+                let width = 10;
 
+                let direction = this.raycaster.facing.copy();
+                if (!moveForward) {
+                    direction = direction.scale(-1);
+                }
+
+                // generate rays in a cone in fromt of the player
+                let colliders = [];
+                let rayCount = 5;
+                let coneAngle = 90;
+                for (let i = 0; i < rayCount; i++) {
+                    let angle = rayCount == 1 ? 0 : (coneAngle * (i/(rayCount-1)) - coneAngle/2);
+                    let ray = new Ray(this.raycaster.position, direction.rotate(angle, 'degrees'));
+                    colliders.push(ray);
+                }
+
+                // get all planes that intersect with the rays
+                let hits = [];
+                colliders.forEach(collider => {
+                    let stack = collider.intersectPlanes(this.world.planes);
+                    // get the hit with lowest distance
+                    let closestHit = undefined;
+                    stack.forEach(hit => {
+                        if (hit.target.solid) {
+                            if (closestHit == undefined || hit.distance < closestHit.distance) {
+                                closestHit = hit;
+                            }
+                        }
+                    });
+                    if (closestHit != undefined && !isNaN(closestHit.distance)) {
+                        closestHit.distance = closestHit.distance - width/2;
+                        hits.push(closestHit);
+                    }
+                });
+
+                let velocity = direction.normalize().scale(speed);
+
+                // handle cramped spaces
+                let cramped = false;
+                if (hits.length > 1) {
+                    let d1 = hits[0].distance;
+                    let d2 =hits[hits.length-1].distance;
+                    if (d1 < speed && d2 < speed) {
+                        velocity.magnitude = Math.min(d1,d2);
+                        cramped = true;
+                    }
+                }
+
+                if (!cramped) {
+                    for (let i = 0; i < hits.length; i++) {
+                        let hit = hits[i];
+                        let closestDistance = hit.distance;
+                        let closestPoint = hit.point;
+                        let closestPlane = hit.target;
+
+                        // get direction towards closest point
+                        let directionTowardsClosestPoint = closestPoint.subtract(this.raycaster.position).normalize();
+                        let opposingDirection = directionTowardsClosestPoint.scale(-1);
+                        let planeNormal = closestPlane.normal;
+                        if (planeNormal.dot(opposingDirection) < 0) {
+                            planeNormal = planeNormal.scale(-1);
+                        }
+
+                        // get velicity along the plane normal
+                        let velocityAlongPlaneNormal = -velocity.dot(planeNormal);
+
+                        if (velocityAlongPlaneNormal >= closestDistance) {
+                            let opposingVector = planeNormal.scale(velocityAlongPlaneNormal);
+                            velocity = velocity.add(opposingVector);
+                        }
+                    }
+                }
+
+                if (velocity.magnitude > 0.0001) {
+                    this.raycaster.position = this.raycaster.position.add(velocity);
+                }
+                
                 // keep editor centered on player
                 this.offset.x = this.size.width/2 - this.raycaster.position.x;
                 this.offset.y = this.size.height/2 - this.raycaster.position.y;

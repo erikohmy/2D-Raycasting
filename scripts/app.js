@@ -1,12 +1,15 @@
 let engine;
 let dialogVisible = false;
+let scripts = [
+    "scripts/Vector2D.js",
+    "scripts/EasyEvents.js",
+    "scripts/Plane.js",
+    "scripts/World.js",
+    "scripts/Raycaster.js",
+    "scripts/RaycastDisplay.js",
+    "scripts/Engine2dot5D.js"
+];
 function init() {
-    let canvas = document.getElementById("panel")
-    engine = new Engine2dot5D(canvas);
-    setTimeout(() => {
-        canvas.focus();
-    });
-
     let fileinput = document.getElementById("filejson")
     fileinput.addEventListener("change", () => {
         readFile(fileinput).then((data) => {
@@ -24,7 +27,46 @@ function init() {
         display.innerText = opacitySlider.value * 100 + "%";
     });
     
-    engine.importWorldFromJSON(testworlds["testworld 1"]);
+    loadScripts().then(() => {
+        start();
+    });
+}
+
+function start() {
+    let canvas = document.getElementById("panel")
+    engine = new Engine2dot5D(canvas);
+    setTimeout(() => {
+        canvas.focus();
+    }, 10);
+    loadTestWorld();
+}
+
+function loadScripts() {
+    return new Promise((resolve) => {
+        let loaded = 0;
+        scripts.forEach((script) => {
+            let s = document.createElement("script");
+            s.type = "text/javascript";
+            s.onload = () => {
+                loaded++;
+                if (loaded == scripts.length) {
+                    resolve();
+                }
+            };
+            s.src = script;
+            document.body.appendChild(s);
+        });
+    });
+}
+
+function loadTestWorld() {
+    let s = document.createElement("script");
+    s.type = "text/javascript";
+    s.onload = () => {
+        engine.importWorldFromJSON(testworlds["testworld 1"]);
+    };
+    s.src = "resources/testworld.js";
+    document.body.appendChild(s);
 }
 
 function actionExport() {
