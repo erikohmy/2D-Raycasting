@@ -128,7 +128,6 @@
         background-color: #000;
 
         transition: all 0.3s;
-        image-rendering: pixelated;
     }
     .raycast-display:hover {
         bottom: 50px;
@@ -189,8 +188,6 @@
                     <option value="#00f">Blue</option>
                     <option value="#000">Black</option>
                     <option value="#09f">LightBlue</option>
-                    <option value="#ff000099">TransparentRed</option>
-                    <option value="#0099ff99">TransparentLightBlue</option>
                 </select>
             </div>
             <div class="field pa-2 d-flex align-center">
@@ -206,6 +203,11 @@
             <div class="field pa-2 d-flex align-center">
                 <label for="optionsIsMirror">Mirror:</label>
                 <input type="checkbox" name="optionsIsMirror" id="optionsIsMirror" />
+            </div>
+            <div class="field pa-2 d-flex align-center">
+                <label for="optionsOpacity">Opacity:</label>
+                <input type="range" name="optionsOpacity" id="optionsOpacity" min="0" max="1" value="1" step="0.1" class="slider" id="myRange">
+                <span id="optionsOpacityValue">100%</span>
             </div>
             <div class="spacer"></div>
             <div class="field pa-2 d-flex align-center">

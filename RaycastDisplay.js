@@ -28,7 +28,6 @@ class RaycastDisplay {
         // focus on the engine canvas when the raycast display is clicked
         this.canvas.addEventListener("click", event => {
             this.engine.canvas.focus();
-            //event.preventDefault();
         });
 
     }
@@ -81,15 +80,16 @@ class RaycastDisplay {
                 let slice_apparent_height = slice_height * (this.size.height/hit.distance_n);
                 let slice_y = (this.size.height/2) - (slice_apparent_height/2);
 
+                this.ctx.globalAlpha = target.opacity;
                 if (target.isTextured) {
                     let texture = this.engine.textures[target.texture];
-                    this.setcolor(texture.fallback);
-                    this.fillRect(slice_x,slice_y,slice_width,slice_apparent_height);
                     this.drawImageSlice(texture.img, texture.width * hit.coordinate, 0, slice_width, texture.height, slice_x, slice_y, slice_width, slice_apparent_height);
+                    
                 } else {
                     this.setcolor(target.color);
                     this.fillRect(slice_x,slice_y,slice_width,slice_apparent_height);
                 }
+                this.ctx.globalAlpha = 1;
             }
         }
 

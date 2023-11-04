@@ -18,6 +18,12 @@ function init() {
         });
     });
 
+    let opacitySlider = document.getElementById("optionsOpacity");
+    opacitySlider.addEventListener("input", () => {
+        let display = document.getElementById("optionsOpacityValue");
+        display.innerText = opacitySlider.value * 100 + "%";
+    });
+    
     engine.importWorldFromJSON(testworlds["testworld 1"]);
 }
 

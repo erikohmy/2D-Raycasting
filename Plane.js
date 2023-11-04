@@ -14,6 +14,7 @@ class Plane {
             color: undefined,
             editorColor: undefined,
             opaque: false,
+            opacity: 1,
             mirror: false,
             texture: undefined,
         }
@@ -58,6 +59,14 @@ class Plane {
     }
     set opaque(value) {
         this.options.opaque = value;
+    }
+
+    // opacity
+    get opacity() {
+        return this.options.opacity;
+    }
+    set opacity(value) {
+        this.options.opacity = value;
     }
 
     // mirror
