@@ -226,7 +226,8 @@ class Engine2dot5D {
                     color: document.getElementById("optionsColor").value || this.getRandomColor(),
                     texture: document.getElementById("optionsTexture").value || undefined,
                     mirror: document.getElementById("optionsIsMirror").checked,
-                    opacity:  document.getElementById("optionsOpacity").value
+                    opacity:  document.getElementById("optionsOpacity").value,
+                    opaque:  document.getElementById("optionsOpaque").checked,
                 }));
                 if (added) {
                     this.selection = {
