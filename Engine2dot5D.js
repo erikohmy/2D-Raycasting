@@ -432,6 +432,7 @@ class Engine2dot5D {
                 this.raycaster.position = this.raycaster.position.add(this.raycaster.facing.scale(speed));
                 this.raycaster.setupRays();
 
+                // keep editor centered on player
                 this.offset.x = this.size.width/2 - this.raycaster.position.x;
                 this.offset.y = this.size.height/2 - this.raycaster.position.y;
 
