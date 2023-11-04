@@ -46,11 +46,10 @@ class Raycaster {
         let ray = new Ray(this.position, null);
 
         for(let i = 0; i < this.resolution; i++) {
-            let direction = Vector2D.fromAngle(angle)
-            ray.direction = direction;
+            ray.facing = Vector2D.fromAngle(angle)
             let stack = ray.intersectPlanes(planes);
             for(let hit of stack) {
-                let B = 180 - (90 - (ray.direction.degrees - this.facing.degrees));
+                let B = 180 - (90 - (ray.facing.degrees - this.facing.degrees));
                 hit.distance_n = hit.distance * Math.sin(Vector2D.d2r(B));
             }
             stack.sort((a,b) => a.distance - b.distance);
@@ -63,9 +62,9 @@ class Raycaster {
 }
 
 class Ray {
-    constructor(origin, direction) {
+    constructor(origin, facing) {
         this.origin = origin;
-        this.direction = direction;
+        this.facing = facing;
     }
 
     line_intersect(x1, y1, x2, y2, x3, y3, x4, y4) {
@@ -86,7 +85,7 @@ class Ray {
     }
 
     intersectPlane(plane) {
-        let dirScaled = this.direction.scale(100000);
+        let dirScaled = this.facing.scale(100000);
         let [x1,y1,x2,y2,x3,y3,x4,y4] = [this.origin.x,this.origin.y,this.origin.x + dirScaled.x,this.origin.y + dirScaled.y,plane.p1.x,plane.p1.y,plane.p2.x,plane.p2.y];
         let intersection = this.line_intersect(x1,y1,x2,y2,x3,y3,x4,y4);
         if (intersection !== null && intersection.seg1 && intersection.seg2) {
@@ -124,8 +123,8 @@ class Ray {
                     break;
                 }
                 // move hit point slightly backwards to avoid self-intersection
-                let ref_point = hit.point.subtract(this.direction.scale(0.001));
-                let ref_ray = new Ray(ref_point, this.direction.reflect(hit.target.normal));
+                let ref_point = hit.point.subtract(this.facing.scale(0.001));
+                let ref_ray = new Ray(ref_point, this.facing.reflect(hit.target.normal));
                 let ref_hits = ref_ray.intersectPlanes(planes, depth+1);
                 for(let ref_hit of ref_hits) {
                     ref_hit.distance += hit.distance;
