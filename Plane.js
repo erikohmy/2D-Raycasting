@@ -13,7 +13,7 @@ class Plane {
         let optionsDefault = {
             color: undefined,
             editorColor: undefined,
-            opaque: false,
+            opaque: true,
             opacity: 1,
             mirror: false,
             texture: undefined,

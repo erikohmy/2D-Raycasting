@@ -17,6 +17,7 @@ class Engine2dot5D {
     mousePos = {x:0,y:0};
     mousePosPressed = {x:0,y:0};
     mouseDown = false;
+    mouseDragging = false;
 
     keysDown = [];
 
@@ -30,9 +31,14 @@ class Engine2dot5D {
         turnRight: "d",
         moveForward: "w",
         moveBackward: "s",
+        delete: "Delete",
+
+        toolSelect: "1",
+        toolPlane: "2",
     };
 
     selectedTool = "plane"; // plane, select
+    selection = undefined;
 
     isDraggingGrid = false;
     isAddingPlane = false;
@@ -66,6 +72,10 @@ class Engine2dot5D {
         // bind mouse events
         this.canvas.addEventListener("mousemove", event => {
             [this.mousePos.x, this.mousePos.y] = [event.offsetX - this.offset.x, event.offsetY - this.offset.y];
+            if (this.mouseDown) {
+                this.mouseDragging = true;
+                this.events.trigger("mousedrag", event);
+            }
             this.render();
         })
         this.canvas.addEventListener("mousedown", event => {
@@ -89,6 +99,10 @@ class Engine2dot5D {
             this.events.trigger("mouseup", event);
             if (event.which == 1) {
                 this.events.trigger("mouseleftup", event);
+                if (this.mouseDragging) {
+                    this.mouseDragging = false;
+                    this.events.trigger("mousedragend", event);
+                }
                 this.mouseDown = false;
             } else if (event.which == 2) {
                 this.events.trigger("mousemidup", event);
@@ -146,6 +160,24 @@ class Engine2dot5D {
                 if (this.isDraggingGrid) {
                     this.events.trigger("draggridstart");
                 }
+            } else if (key == this.controls.toolSelect) {
+                this.selectedTool = "select";
+            } else if (key == this.controls.toolPlane) {
+                this.selectedTool = "plane";
+            } else if (key == this.controls.delete) {
+                if (this.selection) {
+                    if (this.selection.type == "plane") {
+                        this.world.removePlane(this.selection.target);
+                        this.selection = undefined;
+                    } else if (this.selection.type == "multiple") {
+                        this.selection.target.forEach(target => {
+                            if (target.type == "plane") {
+                                this.world.removePlane(target.target);
+                            }
+                        });
+                        this.selection = undefined;
+                    }
+                }
             }
         });
 
@@ -190,12 +222,55 @@ class Engine2dot5D {
                 [p1x, p1y] = this.snapToGrid(p1x,p1y);
                 [p2x, p2y] = this.snapToGrid(p2x,p2y);
 
-                this.world.addPlane(new Plane(p1x,p1y,p2x,p2y, {
+                let added = this.world.addPlane(new Plane(p1x,p1y,p2x,p2y, {
                     color: document.getElementById("optionsColor").value || this.getRandomColor(),
                     texture: document.getElementById("optionsTexture").value || undefined,
                     mirror: document.getElementById("optionsIsMirror").checked,
                     opacity:  document.getElementById("optionsOpacity").value
                 }));
+                if (added) {
+                    this.selection = {
+                        type: 'plane',
+                        index: this.world.planes.length-1,
+                        target: this.world.planes[this.world.planes.length-1]
+                    };
+                }
+            }
+            if (this.selectedTool == "select") {
+                if (this.mouseDragging) {
+                    // get all planes with an origin within the selection box
+                    let [x1, y1, x2, y2] = this.getSelectionArea();
+                    let selectedPlanes = [];
+                    this.world.getPlanesWithinBounds(x1,y1,x2,y2).forEach(plane => {
+                        selectedPlanes.push({
+                            type: "plane",
+                            index: this.world.planes.indexOf(plane),
+                            target: plane
+                        });
+                    });
+                    if (selectedPlanes.length == 0) {
+                        this.selection = undefined;
+                    } else if(selectedPlanes.length === 1){
+                        this.selection = selectedPlanes[0];
+                    } else {
+                        this.selection = {
+                            type: "multiple",
+                            target: selectedPlanes,
+                            index: null
+                        }
+                    }
+                } else {
+                    let plane = this.getPlaneAtMouse();
+                    if (plane) {
+                        this.selection = {
+                            type: 'plane',
+                            index: this.world.planes.indexOf(plane),
+                            target: plane
+                        };
+                    } else {
+                        this.selection = undefined;
+                    }
+                }
             }
         });
         this.events.on("mouserightdown", event => {
@@ -203,7 +278,35 @@ class Engine2dot5D {
             let plane = this.getPlaneAtMouse();
             if (plane) {
                 this.world.removePlane(plane);
+                this.selection = undefined;
             }
+        });
+        this.events.on("mousedrag", event => {  // mousedrag event
+            if (this.selectedTool == "select") {
+                let [x1, y1, x2, y2] = this.getSelectionArea();
+                let selectedPlanes = [];
+                this.world.getPlanesWithinBounds(x1,y1,x2,y2).forEach(plane => {
+                    selectedPlanes.push({
+                        type: "plane",
+                        index: this.world.planes.indexOf(plane),
+                        target: plane
+                    });
+                });
+                if (selectedPlanes.length === 0) {
+                    this.selection = undefined;
+                } else if(selectedPlanes.length === 1){
+                    this.selection = selectedPlanes[0];
+                } else {
+                    this.selection = {
+                        type: "multiple",
+                        target: selectedPlanes,
+                        index: null
+                    }
+                }
+            }
+        });
+        this.events.on("mousedragend", event => {  // mousedragend event
+
         });
         this.events.on("draggridstart", () => {  // draggridstart event 
             this.canvas.classList.add("dragging-grid");
@@ -367,6 +470,17 @@ class Engine2dot5D {
         return 0;
     }
 
+    getSelectionArea() {
+        let [x1, y1, x2, y2] = [this.mousePosPressed.x, this.mousePosPressed.y, this.mousePos.x, this.mousePos.y];
+        if (x1 > x2) {
+            [x1, x2] = [x2, x1];
+        }
+        if (y1 > y2) {
+            [y1, y2] = [y2, y1];
+        }
+        return  [x1, y1, x2, y2];
+    }
+
     isKeyDown(key) {
         return this.keysDown.includes(key);
     }
@@ -514,10 +628,28 @@ class Engine2dot5D {
         }
         return null;
     }
+    isSelected(entity) {
+        if (this.selection) {
+            if (this.selection.type == "plane") {
+                return this.selection.target == entity;
+            } else if (this.selection.type == "multiple") {
+                return this.selection.target.some(target => {
+                    return target.target == entity;
+                });
+            }
+        }
+        return false;
+    } 
 
     // rendering methods
     renderPlane(plane, origin = undefined) {
-        this.setcolor(plane.editorColor);
+        let selected = false;
+        if (this.selection && this.isSelected(plane)) {
+            this.setcolor("#f00");
+            selected = true;
+        } else {
+            this.setcolor(plane.editorColor);
+        }
         if (origin == undefined) {
             plane = plane.copy();
         }
@@ -528,6 +660,15 @@ class Engine2dot5D {
             this.setcolor("#d00");
             let normalEnd = plane.origin.add(plane.normal.scale(10));
             this.drawLine( plane.origin.x, plane.origin.y, normalEnd.x, normalEnd.y)
+        }
+        // for when we can actually edit planes
+        if (false && selected) {
+            this.setcolor("#f00");
+            this.fillCircle( plane.p1.x, plane.p1.y, 4)
+            this.fillCircle( plane.p2.x, plane.p2.y, 4)
+        } else if(selected) {
+            this.setcolor("#f00");
+            this.fillCircle( plane.origin.x, plane.origin.y, 4)
         }
     }
 
@@ -573,11 +714,23 @@ class Engine2dot5D {
             [p1x, p1y] = this.snapToGrid(p1x,p1y);
             [p2x, p2y] = this.snapToGrid(p2x,p2y);
 
-            this.renderPlane(new Plane(p1x,p1y,p2x,p2y));
+            if (!(p1x == p2x && p1y == p2y)) {
+                this.renderPlane(new Plane(p1x,p1y,p2x,p2y));
+                this.setcolor("#f00");
+                this.fillCircle( p1x, p1y, 4)
+                this.fillCircle( p2x, p2y, 4)
+            }
+        }
 
+        if (this.mouseDragging && this.selectedTool == "select") {
+            let x1 = this.mousePosPressed.x;
+            let y1 = this.mousePosPressed.y;
+            let x2 = this.mousePos.x;
+            let y2 = this.mousePos.y;
+
+            // draw a bounding box around the selection
             this.setcolor("#f00");
-            this.fillCircle( p1x, p1y, 4)
-            this.fillCircle( p2x, p2y, 4)
+            this.drawRect( x1, y1, x2 - x1, y2 - y1);
         }
 
         // render the scene
