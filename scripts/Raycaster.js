@@ -41,7 +41,7 @@ class Raycaster {
 
     intersect(planes) {
         let hits = [];
-        let step = this.fov / this.resolution;
+        let step = this.fov / (this.resolution-1);
         let angle = this.facing.degrees - this.fov/2;
         let ray = new Ray(this.position, null);
 

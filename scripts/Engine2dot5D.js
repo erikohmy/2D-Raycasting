@@ -427,44 +427,67 @@ class Engine2dot5D {
                     direction = direction.scale(-1);
                 }
 
-                // create three rays, one in the center, one on the left, and one on the right of the player, offset by half the width of the player
-                let colliderCenter = new Ray(this.raycaster.position, direction);
-                let colliderLeft = new Ray(this.raycaster.position.add(direction.rotate(90, 'degrees').scale(width/2)), direction);
-                let colliderRight = new Ray(this.raycaster.position.add(direction.rotate(-90, 'degrees').scale(width/2)), direction);
+                // generate rays in a cone in fromt of the player
+                let colliders = [];
+                let rayCount = 5;
+                let coneAngle = 90;
+                for (let i = 0; i < rayCount; i++) {
+                    let angle = rayCount == 1 ? 0 : (coneAngle * (i/(rayCount-1)) - coneAngle/2);
+                    let ray = new Ray(this.raycaster.position, direction.rotate(angle, 'degrees'));
+                    colliders.push(ray);
+                }
 
                 // get all planes that intersect with the rays
-                let hits = [
-                    ...colliderCenter.intersectPlanes(this.world.planes),
-                    ...colliderLeft.intersectPlanes(this.world.planes),
-                    ...colliderRight.intersectPlanes(this.world.planes)
-                ];
-
-                // get the closest plane that is solid
-                let closestPlane = undefined;
-                let closestDistance = undefined;
-                hits.forEach(hit => {
-                    if (hit.target.solid) {
-                        if (closestDistance == undefined || hit.distance < closestDistance) {
-                            closestPlane = hit.target;
-                            closestDistance = hit.distance;
+                let hits = [];
+                colliders.forEach(collider => {
+                    let stack = collider.intersectPlanes(this.world.planes);
+                    // get the hit with lowest distance
+                    let closestHit = undefined;
+                    stack.forEach(hit => {
+                        if (hit.target.solid) {
+                            if (closestHit == undefined || hit.distance < closestHit.distance) {
+                                closestHit = hit;
+                            }
                         }
+                    });
+                    if (closestHit != undefined) {
+                        hits.push(closestHit);
                     }
                 });
-                closestDistance = closestDistance - width/2;
 
-                if(!isNaN(closestDistance)) {
-                    if (closestDistance < speed) {
-                        speed = closestDistance;
+                window.debug_colliderHits = hits;
+                let velocity = direction.normalize().scale(speed);
+
+                for (let i = 0; i < hits.length; i++) {
+                    let hit = hits[i];
+                    let closestDistance = hit.distance - width/2;
+
+                    if(!isNaN(closestDistance)) {
+                        let closestPoint = hit.point;
+                        let closestPlane = hit.target;
+
+                        // get direction towards closest point
+                        let directionTowardsClosestPoint = closestPoint.subtract(this.raycaster.position).normalize();
+                        let opposingDirection = directionTowardsClosestPoint.scale(-1);
+                        let planeNormal = closestPlane.normal;
+                        if (planeNormal.dot(opposingDirection) < 0) {
+                            planeNormal = planeNormal.scale(-1);
+                        }
+
+                        // get velicity along the plane normal
+                        let velocityAlongPlaneNormal = -velocity.dot(planeNormal);
+
+                        if (velocityAlongPlaneNormal >= closestDistance) {
+                            let opposingVector = planeNormal.scale(velocityAlongPlaneNormal);
+                            velocity = velocity.add(opposingVector);
+                        }
                     }
                 }
 
-                speed = moveForward ? speed : -speed;
-
-                if (speed > 0.0001 || speed < -0.0001) {
-                    this.raycaster.position = this.raycaster.position.add(this.raycaster.facing.scale(speed));
+                if (velocity.magnitude > 0.0001) {
+                    this.raycaster.position = this.raycaster.position.add(velocity);
                 }
                 
-
                 // keep editor centered on player
                 this.offset.x = this.size.width/2 - this.raycaster.position.x;
                 this.offset.y = this.size.height/2 - this.raycaster.position.y;
@@ -775,6 +798,13 @@ class Engine2dot5D {
             let facing = this.raycaster.facing.scale(15);
             let lineEnd = this.raycaster.position.add(facing);
             this.drawLine( this.raycaster.position.x, this.raycaster.position.y, lineEnd.x, lineEnd.y);
+        }
+
+        if (window.debug_colliderHits) {
+            this.setcolor("#f00");
+            window.debug_colliderHits.forEach(hit => {
+                this.drawCircle(hit.point.x, hit.point.y, 2);
+            });
         }
     }
 }
