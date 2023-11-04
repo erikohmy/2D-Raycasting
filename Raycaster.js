@@ -56,31 +56,6 @@ class Raycaster {
         }
     }
 
-    intersectOld(planes) { 
-        let hits = [];
-        for(let ray of this.rays) {
-            let stack = [];
-            for(let plane of planes) {
-                let hit = ray.intersectPlane(plane);
-                if (hit) {
-                    //let B = Vector2D.d2r(90 - (this.facing.degrees - ray.direction.degrees) );
-                    let B = 180 - (90 - (ray.direction.degrees - this.facing.degrees));
-                    //let A = 180 - B - 90;
-                    //hit.angle = A + " + " + B + " + " + 90 + " = " + (A + B + 90)
-                    hit.distance_n = hit.distance * Math.sin(Vector2D.d2r(B));
-                    stack.push(hit);
-                    if (plane.isOpaque) {
-                        break;
-                    }
-                }
-            }
-            // sort stack by distance
-            stack.sort((a,b) => a.distance - b.distance);
-            hits.push(stack);
-        }
-        return hits;
-    }
-
     intersect(planes) {
         let hits = [];
         for(let ray of this.rays) {
@@ -151,7 +126,7 @@ class Ray {
 
         let hits = [];
         for(let hit of rawhits) {
-            if (hit.target.isMirror) {
+            if (hit.target.mirror) {
                 // allow up to 16 reflections
                 if(depth > 16) {
                     hits.push(hit);
@@ -169,19 +144,13 @@ class Ray {
                 break;
             }
             hits.push(hit);
-            if (hit.target.isOpaque) {
+            if (hit.target.opaque) {
                 break;
             }
         }
 
         hits.sort((a,b) => a.distance - b.distance);
 
-        /*
-        if (plane.isMirror) {
-            let ref_ray = new Ray(hit.point, this.direction.reflect(hit.target.normal));
-            return ref_ray.intersectPlanes(planes);
-        }
-        */
         return hits;
     }
 }
