@@ -211,28 +211,31 @@ class Engine2dot5D {
         this.events.on("draggridend", () => {  // draggridend event
             this.canvas.classList.remove("dragging-grid");
         });
-        this.events.on("textureloaded", name => {
-            console.info("loaded texture:", name);
+        this.events.on("textureloaded", texture => {
+            console.info("loaded texture:", texture.name);
             if (Object.values(this.textures).every(t => {return t.loaded || t.failed})) {
                 this.events.trigger("loaded");
             }
         });
-        this.events.on("texturefailedtoload", name => {
-            console.error("texture could not be loaded:", name);
+        this.events.on("texturefailedtoload", texture => {
+            console.error("texture could not be loaded:", texture.name);
             if (Object.values(this.textures).every(t => {return t.loaded || t.failed})) {
                 this.events.trigger("loaded");
             }
         });
         this.events.on("loaded", () => {
             this.loaded = true;
+            console.log("engine loaded");
             this.render();
         });
 
         // load textures
+        this.addTexture("missing", null, "purple");
         this.addTexture("debug", "resources/debug.png", "#60006a");
         this.addTexture("concrete1", "resources/concrete1.png", "#444");
         this.addTexture("concrete_pillar", "resources/concretePillar.png", "#444");
         this.addTexture("grate", "resources/grate1.png", "#33333300");
+        this.loadTextures();
 
         // inject display into document
         document.body.appendChild(this.display.canvas);
@@ -245,34 +248,50 @@ class Engine2dot5D {
     }
 
     addTexture(name, src, fallback) {
-        let img = new Image();
-        img.onload = () => {
-            this.textures[name].width = img.width;
-            this.textures[name].height = img.height;
-            this.textures[name].loaded = true;
-
-            // empty onload function to prevent errors
-            this.textures[name].img.onload = () => {};
-
-            this.events.trigger("textureloaded", name);
-        }
-        img.onerror = () => {
-            this.textures[name].failed = true;
-            this.textures[name].img.onload = () => {};
-            this.textures[name].img.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACAAQMAAAD58POIAAAABlBMVEXuAP8AAABXLMXMAAAAM0lEQVRIx+XOoQ0AAAzDsP7/dIf3gaWCEKOkzWsdnBMDjAsHnBMDjAsHnBMDjAsHnBMCDgaQ/C593sqdAAAAAElFTkSuQmCC";
-            this.textures[name].width = 128;
-            this.textures[name].height = 128;
-            this.events.trigger("texturefailedtoload", name);
-        }
-        img.src = src;
         this.textures[name] = {
-            img: img,
+            name: name,
+            img: new Image(),
+            src: src,
             loaded: false,
             failed: false,
             fallback: fallback,
             width: 0,
             height: 0
         };
+    }
+
+    loadTextures() {
+        // for every texture in this.textures
+        for (let key in this.textures) {
+            let texture = this.textures[key];
+            let error = () => {
+                texture.failed = true;
+                texture.img.onload = () => {};
+                texture.img.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACAAQMAAAD58POIAAAABlBMVEXuAP8AAABXLMXMAAAAM0lEQVRIx+XOoQ0AAAzDsP7/dIf3gaWCEKOkzWsdnBMDjAsHnBMDjAsHnBMDjAsHnBMCDgaQ/C593sqdAAAAAElFTkSuQmCC";
+                texture.width = 128;
+                texture.height = 128;
+                if (texture.src !== null) {
+                    delete texture.src;
+                    this.events.trigger("texturefailedtoload", texture);
+                }
+                delete texture.src;
+            }
+            if (texture.src !== null) {
+                let img = texture.img;
+                texture.img.onload = () => {
+                    texture.width = img.width;
+                    texture.height = img.height;
+                    texture.loaded = true;
+                    texture.img.onload = () => {};
+                    delete texture.src;
+                    this.events.trigger("textureloaded", texture);
+                };
+                texture.img.onerror = error;
+                texture.img.src = texture.src;
+            } else {
+                error();
+            }
+        }
     }
 
     exportWorldToJSON() {

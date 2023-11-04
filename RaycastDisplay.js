@@ -83,8 +83,10 @@ class RaycastDisplay {
                 this.ctx.globalAlpha = target.opacity;
                 if (target.isTextured) {
                     let texture = this.engine.textures[target.texture];
+                    if (!texture) {
+                        texture = this.engine.textures["missing"];
+                    }
                     this.drawImageSlice(texture.img, texture.width * hit.coordinate, 0, slice_width, texture.height, slice_x, slice_y, slice_width, slice_apparent_height);
-                    
                 } else {
                     this.setcolor(target.color);
                     this.fillRect(slice_x,slice_y,slice_width,slice_apparent_height);
