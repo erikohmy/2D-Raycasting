@@ -40,13 +40,11 @@ class Interface {
         this.addInput('viewSelector', viewSelector);
 
         let menuMain = RMenu.make("main-menu");
-        this.addInput('menuMain', menuMain);
-
-        let testbutton = RButton.make('btn-test');
-        testbutton.on('click', (target, value) => {
-            viewSelector.disabled = !viewSelector.disabled;
+        menuMain.on('option-clicked', (target, option) => {
+            console.log(option);
         });
-        this.addInput('testbutton', testbutton);
+        menuMain.generateHtml(testoptions);
+        this.addInput('menuMain', menuMain);
     } 
 
     addInput(name, handler) {

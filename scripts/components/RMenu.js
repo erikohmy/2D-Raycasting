@@ -1,37 +1,38 @@
 let testoptions = [
     {
-        type: "text",
         text: "File",
         options: [
             {
                 type: "button",
                 text: "New",
+                name: "reset-world",
                 event: "action-reset-world"
             },
             {
                 type: "button",
                 text: "Open",
+                name: "open-world",
                 event: "action-open-world"
             },
             {
                 type: "button",
                 text: "Download",
+                name: "download-world",
                 event: "action-download-world"
             },
         ]
     },
     {
-        type: "text",
         text: "View",
         options: [
             {
-                type: "text",
                 text: "Grid",
                 options: [
                     {
                         type: "button",
                         text: "Custom",
                         name: "gridsize",
+                        value: "custom"
                     },
                     {
                         type: "separator",
@@ -40,19 +41,70 @@ let testoptions = [
                         type: "radio",
                         text: "64x64",
                         name: "gridsize",
+                        value: "64",
                     },
                     {
                         type: "radio",
                         text: "32x32",
                         name: "gridsize",
+                        value: "32",
                     },
                     {
                         type: "radio",
                         text: "16x16",
                         name: "gridsize",
+                        value: "16",
                     },
                 ]
             }
+        ]
+    },
+    {
+        text: "Options",
+        options: [
+            {
+                text: "Color",
+                options: [
+                    {type: "button", text: "Custom", name: "color", value: "custom"},
+                    {type: "separator"},
+                    {type: "radio", text: "Random", name: "color", value: "random"},
+                    {type: "radio", text: "Transparent", name: "color", value: "#00000000"},
+                    {type: "radio", text: "Grey", name: "color", value: "#444444ff"},
+                    {type: "radio", text: "Red", name: "color", value: "#ff0000ff"},
+                    {type: "radio", text: "Green", name: "color", value: "#00ff00ff"},
+                    {type: "radio", text: "Blue", name: "color", value: "#0000ffff"},
+                    {type: "radio", text: "Black", name: "color", value: "#000000ff"},
+                    {type: "radio", text: "LightBlue", name: "color", value: "#0099ffff"}
+                ]
+            },
+            {
+                text: "Opacity",
+                options: [
+                    {type: "button", text: "Custom", name: "opacity", value: "custom"},
+                    {type: "separator"},
+                    {type: "radio", text: "100%", name: "opacity", value: "100"},
+                    {type: "radio", text: "75%", name: "opacity", value: "75"},
+                    {type: "radio", text: "50%", name: "opacity", value: "50"},
+                    {type: "radio", text: "25%", name: "opacity", value: "25"},
+                    {type: "radio", text: "10%", name: "opacity", value: "10"},
+                    {type: "radio", text: "0%", name: "opacity", value: "0"}  
+                ]
+            },
+            {
+                text: "Texture",
+                options: [
+                    {type: "radio", text: "None", name: "texture", value: ""},
+                    {type: "separator"},
+                    {type: "radio", text: "Concrete", name: "texture", value: "concrete1"},
+                    {type: "radio", text: "Concrete Pillar", name: "texture", value: "concrete_pillar"},
+                    {type: "radio", text: "Grate", name: "texture", value: "grate"},
+                    {type: "radio", text: "Debug", name: "texture", value: "debug"}
+                ]
+            },
+            {type: "separator"},
+            {type: "check", text: "Mirror", name: "mirror"},
+            {type: "check", text: "Opaque", name: "opaque"},
+            {type: "check", text: "Solid", name: "solid"}
         ]
     }
 ];
@@ -60,13 +112,13 @@ let testoptions = [
 class RMenu extends RComponent {
     options = [];
     namePrefix = "rmenu-";
+    inputs = [];
     static className = "r-menu";
     generateHtml(options) {
         if (! (options instanceof Array)) {
             options = this.options;
         }
         let menu = this.buildOptions(options);
-        console.log(menu);
         this.html = "";
         menu.forEach((item) => {
             this.element.appendChild(item);
@@ -80,7 +132,6 @@ class RMenu extends RComponent {
                 count++;
             }
         }
-        console.log(current, count);
         return id + "-" + count;
     }
 
@@ -93,15 +144,17 @@ class RMenu extends RComponent {
             let item;
             if (option.type === "separator") {
                 li.setAttribute("data-separator", "true");
-            } else if (option.type === "text") {
-                item = document.createElement("span");
-                item.innerHTML = option.text;
-                li.appendChild(item);
             } else if (option.type === "button") {
                 item = document.createElement("button");
                 item.innerHTML = option.text;
                 li.appendChild(item);
-            }  else if (option.type === "checkbox" || option.type === "radio") {
+
+                let handler = RMenuButton.make(item);
+                this.addInput(option.name, handler, option);
+                handler.on('click', (target, value) => {
+                    this.events.trigger('option-clicked', this, option);
+                });
+            }  else if (option.type === "check" || option.type === "radio") {
                 ids.push(option.name);
                 let id = this.namePrefix + this.generateIndexedId(ids, option.name)
                 item = document.createElement("label");
@@ -109,7 +162,13 @@ class RMenu extends RComponent {
                 item.htmlFor = id;
                 li.appendChild(item);
 
-                if (option.type === "checkbox") {
+                let handler = RMenuButton.make(item);
+                this.addInput(option.name, handler, option);
+                handler.on('click', (target, value) => {
+                    this.events.trigger('option-clicked', this, option);
+                });
+
+                if (option.type === "check") {
                     item = document.createElement("input");
                     item.type = "checkbox";
                     item.id = id;
@@ -125,8 +184,7 @@ class RMenu extends RComponent {
                 }
             } else {
                 item = document.createElement("span");
-                item.innerHTML = "ERROR";
-                item.style.color = "red";
+                item.innerHTML = option.text;
                 li.appendChild(item);
             }
             if (option.options) {
@@ -139,4 +197,27 @@ class RMenu extends RComponent {
         }
         return menu;
     }
+
+    addInput(name, handler, data) {
+        this.inputs.push({
+            name: name,
+            handler: handler,
+            data: data
+        });
+    }
+    getInput(name) {
+        let inputs = this.getInputs(name);
+        return inputs.length > 0 ? inputs[0] : undefined;
+    }
+    getInputs(name) {
+        return this.inputs.filter(inputRef => {
+            return inputRef.name === name;
+        }).map(inputRef => {
+            return inputRef.handler;
+        });
+    }
+}
+
+class RMenuButton extends RButton {
+    static className = "r-menubtn";
 }
