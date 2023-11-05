@@ -1,36 +1,14 @@
-class RButtonGroup {
-    element = undefined;
+class RButtonGroup extends RComponent {
     buttons = undefined;
     active = undefined;
 
-    events = new EasyEvents();
-
     static className = "r-btngroup";
-    static classNameBound = "r-js-bound";
-    static classDisabled = "r-disabled";
-
-    _disabled = false;
+    static classNameActive = "btn-active";
 
     // Events
     //  input
     //  change
     //  click
-
-    constructor(element) {
-        this.element = element;
-        this.bind();
-    }
-
-    static make(element) {
-        if (typeof element === "string") {
-            element = document.querySelector(`[data-ref='${element}']`);
-        }
-        if (element.classList.contains(RButtonGroup.classNameBound)) {
-            console.warn("RButtonGroup.make: element already bound", element);
-            return false;
-        }
-        return new RButtonGroup(element);
-    }
 
     get value() {
         if (!this.active) {
@@ -45,9 +23,9 @@ class RButtonGroup {
             let buttonValue = button.value
             if (buttonValue == value) {
                 this.active = button;
-                this.active.element.classList.add("btn-active");
+                this.active.element.classList.add(this.constructor.classNameActive);
             } else {
-                button.element.classList.remove("btn-active");
+                button.element.classList.remove(this.constructor.classNameActive);
             }
         });
 
@@ -59,19 +37,23 @@ class RButtonGroup {
         return this._disabled;
     }   
     set disabled(value) {
-        if (value === this._disabled) return;
+        if (value === this._disabled) return this._disabled;
+
         this._disabled = value;
         if (value) {
-            this.element.classList.add(RButtonGroup.classDisabled);
+            this.element.classList.add(this.constructor.classDisabled);
+            this.element.disabled = true;
             this.buttons.forEach(button => {
                 button.disabled = true;
             });
         } else {
-            this.element.classList.remove(RButtonGroup.classDisabled);
+            this.element.classList.remove(this.constructor.classDisabled);
+            this.element.disabled = false;
             this.buttons.forEach(button => {
                 button.disabled = false;
             });
         }
+        return this._disabled;
     }
 
     bind() {
@@ -85,9 +67,5 @@ class RButtonGroup {
             return button;
         });
         this.element.classList.add(RButtonGroup.classNameBound);
-    }
-
-    on(event, callback) {
-        this.events.on(event, callback);
     }
 }

@@ -33,13 +33,13 @@ class Interface {
 
     // Handle inputs, like buttons, sliders, menus, etc.
     bind() {
-        let viewSelector = new RButtonGroup(document.getElementById("view-selector"));
+        let viewSelector = RButtonGroup.make(document.getElementById("view-selector"));
         viewSelector.on('input', (target, value) => {
             this.view = value;
         });
         this.addInput('viewSelector', viewSelector);
 
-        let testbutton = RButton.make(document.querySelector("[data-ref='btn-test']"));
+        let testbutton = RButton.make('btn-test');
         testbutton.on('click', (target, value) => {
             console.log('clicked', target, value);
             viewSelector.disabled = !viewSelector.disabled;

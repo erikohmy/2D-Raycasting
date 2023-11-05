@@ -8,19 +8,17 @@ let scripts = [
     "scripts/Engine2dot5D.js",
     "scripts/Interface.js",
 
+    "scripts/components/RComponent.js",
     "scripts/components/RButton.js",
     "scripts/components/RButtonGroup.js",
 ];
 let interface;
 let engine;
 addEventListener('load', () => {
-    loadScripts().then(() => {
-        start();
-    });
+    loadScripts().then(start);
 });
 
 function start() {
-    console.log("loaded");
     interface = new Interface();
 
     let canvas = document.getElementById("panel")
@@ -31,21 +29,20 @@ function start() {
     loadTestWorld();
 }
 
-function loadScripts() {
+async function loadScripts() {
+    for (let src of scripts) {
+        await loadScript(src);
+    }
+}
+function loadScript(src) {
     return new Promise((resolve) => {
-        let loaded = 0;
-        scripts.forEach((script) => {
-            let s = document.createElement("script");
-            s.type = "text/javascript";
-            s.onload = () => {
-                loaded++;
-                if (loaded == scripts.length) {
-                    resolve();
-                }
-            };
-            s.src = script;
-            document.body.appendChild(s);
-        });
+        let s = document.createElement("script");
+        s.type = "text/javascript";
+        s.onload = () => {
+            resolve();
+        };
+        s.src = src;
+        document.body.appendChild(s);
     });
 }
 
