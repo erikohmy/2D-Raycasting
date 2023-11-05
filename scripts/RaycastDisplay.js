@@ -183,7 +183,7 @@ class RaycastDisplay {
         }
 
         // show if window is focused
-        if (!engine.isFocused) {
+        if (false && !engine.isFocused) {
             this.setcolor("#000000aa");
             this.fillRect( 0, 0, this.size.width, this.size.height);
             // draw text on the canvas

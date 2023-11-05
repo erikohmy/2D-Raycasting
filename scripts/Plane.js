@@ -67,7 +67,7 @@ class Plane {
         return this.options.opacity;
     }
     set opacity(value) {
-        this.options.opacity = value;
+        this.options.opacity = Number(value);
     }
 
     // mirror

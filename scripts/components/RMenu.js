@@ -89,12 +89,12 @@ let testoptions = [
                 options: [
                     {type: "button", text: "Custom", name: "opacity", value: "custom"},
                     {type: "separator"},
-                    {type: "radio", text: "100%", name: "opacity", value: "100", checked: true},
-                    {type: "radio", text: "75%", name: "opacity", value: "75"},
-                    {type: "radio", text: "50%", name: "opacity", value: "50"},
-                    {type: "radio", text: "25%", name: "opacity", value: "25"},
-                    {type: "radio", text: "10%", name: "opacity", value: "10"},
-                    {type: "radio", text: "0%", name: "opacity", value: "0"}  
+                    {type: "radio", text: "100%", name: "opacity", value: "1.0", checked: true},
+                    {type: "radio", text: "75%", name: "opacity", value: "0.75"},
+                    {type: "radio", text: "50%", name: "opacity", value: "0.50"},
+                    {type: "radio", text: "25%", name: "opacity", value: "0.25"},
+                    {type: "radio", text: "10%", name: "opacity", value: "0.10"},
+                    {type: "radio", text: "0%", name: "opacity", value: "0.0"}  
                 ]
             },
             {
@@ -115,7 +115,7 @@ let testoptions = [
         ]
     }
 ];
-// interface.getInput('menuMain').generateHtml(testoptions)
+
 class RMenu extends RComponent {
     options = [];
     namePrefix = "rmenu-";

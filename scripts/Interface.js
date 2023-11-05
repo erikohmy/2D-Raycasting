@@ -42,11 +42,17 @@ class Interface {
         let menuMain = RMenu.make("main-menu");
         menuMain.on('option-clicked', (target, option) => {
             //console.log(option);
-            console.log(target.getOptions())
+            //console.log(target.getOptions())
         });
         menuMain.generateHtml(testoptions);
         this.addInput('menuMain', menuMain);
-    } 
+    }
+
+    getOptions() {
+        let menuOptions = this.getInput('menuMain').getOptions();
+        // if we add more options, we can add them here
+        return menuOptions;
+    }
 
     addInput(name, handler) {
         this._inputs.push({

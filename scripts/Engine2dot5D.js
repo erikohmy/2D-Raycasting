@@ -214,13 +214,15 @@ class Engine2dot5D {
                 [p1x, p1y] = this.snapToGrid(p1x,p1y);
                 [p2x, p2y] = this.snapToGrid(p2x,p2y);
 
+                let options = engineInterface.getOptions();
+
                 let added = this.world.addPlane(new Plane(p1x,p1y,p2x,p2y, {
-                    color: document.getElementById("optionsColor").value || this.getRandomColor(),
-                    texture: document.getElementById("optionsTexture").value || undefined,
-                    mirror: document.getElementById("optionsIsMirror").checked,
-                    opacity:  document.getElementById("optionsOpacity").value,
-                    opaque:  document.getElementById("optionsOpaque").checked,
-                    solid: document.getElementById("optionsSolid").checked,
+                    color: options.color || this.getRandomColor(),
+                    texture: options.texture || undefined,
+                    mirror: options.mirror,
+                    opacity:  options.opacity,
+                    opaque:  options.opaque,
+                    solid: options.solid,
                 }));
                 if (added) {
                     this.selection = {

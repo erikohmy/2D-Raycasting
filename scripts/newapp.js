@@ -13,7 +13,7 @@ let scripts = [
     "scripts/components/RButtonGroup.js",
     "scripts/components/RMenu.js",
 ];
-let interface;
+let engineInterface;
 let engine;
 addEventListener('load', () => {
     loadScripts().then(start);
@@ -21,7 +21,7 @@ addEventListener('load', () => {
 
 function start() {
     document.getElementById("main").classList.remove("loading");
-    interface = new Interface();
+    engineInterface = new Interface();
 
     let canvas = document.getElementById("panel")
     engine = new Engine2dot5D(canvas);
