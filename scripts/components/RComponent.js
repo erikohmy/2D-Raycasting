@@ -48,10 +48,6 @@ class RComponent {
         return this._disabled;
     }
 
-    on(event, callback) {
-        this.events.on(event, callback);
-    }
-
     get html() {
         return this.element.innerHTML;
     }
@@ -59,5 +55,13 @@ class RComponent {
         if (value === this.element.innerHTML) return false;
         this.element.innerHTML = value;
         return true;
+    }
+
+    on(event, callback) {
+        this.events.on(event, callback);
+    }
+
+    bind() {
+        this.element.classList.add(this.constructor.className, this.constructor.classNameBound);
     }
 }

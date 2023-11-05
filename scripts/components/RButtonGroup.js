@@ -57,6 +57,7 @@ class RButtonGroup extends RComponent {
     }
 
     bind() {
+        super.bind();
         let elements = Array.from(this.element.getElementsByTagName("button"));
         this.buttons = elements.map(element => {
             let button = RButton.make(element);
@@ -66,6 +67,5 @@ class RButtonGroup extends RComponent {
             });
             return button;
         });
-        this.element.classList.add(RButtonGroup.classNameBound);
     }
 }
