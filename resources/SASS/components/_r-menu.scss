@@ -31,7 +31,7 @@ menu.r-menu {
         width: 100%;
     }
 
-    input[type="checkbox"] {
+    input[type="checkbox"], input[type="radio"] {
         appearance: none;
         display: block;
         position:absolute;
@@ -97,31 +97,39 @@ menu.r-menu {
     }
 
     & > li { // the horizontal menu
-        position: relative;
-
-        & > button {
+        & > button, & > label {
             padding: 0.5rem 1rem;
         }
         &:hover:before {
             opacity: .12;
         }
 
-        & > menu { // the first vertical menu
+        menu {
             position: absolute;
             top:100%;
             left:0;
-
             display: none;
 
-            &, menu {
-                background-color: #333;
+            background-color: #333;
+            border-radius: 6px;
+
+            menu { // each submenu
+                top: 0;
+                left: 100%;
             }
 
-            li { // each item below the first vertical menu
-                
+            li:first-child {
+                margin-top:6px;
+            }
+            li:last-child {
+                margin-bottom:6px;
             }
         }
-        &:hover > menu {
+        & > menu {
+            border-top-left-radius: 0 !important;
+            border-top-right-radius: 0 !important;
+        }
+        &:hover > menu, li:hover > menu {
             display: block;
         }
     }
