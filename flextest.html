@@ -19,6 +19,7 @@
         </div>
         <div class="window window-left editor">
             <div class="editor-toolbar">
+                <div class="menu-title">Raycaster</div>
                 <menu data-ref="main-menu">
                     <li>
                         <button value="file">File</button>
@@ -27,6 +28,28 @@
                             <li><button value="open">Open</button></li>
                             <li><button value="save">Save</button></li>
                             <li><button value="save-as">Save As</button></li>
+                        </menu>
+                    </li>
+                    <li>
+                        <button value="edit">Edit</button>
+                        <menu>
+                            <li><button value="undo">Undo</button></li>
+                            <li><button value="redo">Redo</button></li>
+                            <li data-separator></li>
+                            <li><button value="cut">Cut</button></li>
+                            <li><button value="copy">Copy</button></li>
+                            <li><button value="paste">Paste</button></li>
+                        </menu>
+                    </li>
+                    <li>
+                        <button value="options">Options</button>
+                        <menu>
+                            <li><button value="test1">Do something</button></li>
+                            <li><button value="test2">Toggle viewselector</button></li>
+                            <li>
+                                <input type="checkbox" value="enabled" id="menu-toggle-viewselector" />
+                                <label for="menu-toggle-viewselector">Enable viewselect</label>
+                            </li>
                         </menu>
                     </li>
                 </menu>
