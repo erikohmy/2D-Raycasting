@@ -5,7 +5,7 @@ html, body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-div, button, label {
+div, button, label, span {
   box-sizing: border-box;
 }
 
@@ -134,7 +134,7 @@ menu.r-menu, menu.r-menu menu {
   padding: 0;
   margin: 0;
 }
-menu.r-menu button, menu.r-menu label {
+menu.r-menu button, menu.r-menu label, menu.r-menu span {
   display: flex;
   align-items: center;
   position: relative;
@@ -150,9 +150,6 @@ menu.r-menu button, menu.r-menu label {
 }
 menu.r-menu button {
   width: 100%;
-}
-menu.r-menu > button, menu.r-menu label {
-  height: 100%;
 }
 menu.r-menu input[type=checkbox], menu.r-menu input[type=radio] {
   -webkit-appearance: none;
@@ -211,8 +208,9 @@ menu.r-menu li[data-separator] {
   margin: 0.3rem 0;
   background-color: rgba(255, 255, 255, 0.2);
 }
-menu.r-menu > li > button, menu.r-menu > li > label {
+menu.r-menu > li > button, menu.r-menu > li > label, menu.r-menu > li > span {
   padding: 0.5rem 1rem;
+  height: 100%;
 }
 menu.r-menu > li:hover:before {
   opacity: 0.12;
