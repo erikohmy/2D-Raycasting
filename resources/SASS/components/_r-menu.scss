@@ -117,6 +117,7 @@ menu.r-menu {
 
             background-color: #333;
             border-radius: 6px;
+            border-top-left-radius: 0;
 
             menu { // each submenu
                 top: 0;
@@ -131,7 +132,6 @@ menu.r-menu {
             }
         }
         & > menu {
-            border-top-left-radius: 0 !important;
             border-top-right-radius: 0 !important;
         }
         &:hover > menu, li:hover > menu {

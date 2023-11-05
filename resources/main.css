@@ -224,6 +224,7 @@ menu.r-menu > li menu {
   display: none;
   background-color: #333;
   border-radius: 6px;
+  border-top-left-radius: 0;
 }
 menu.r-menu > li menu menu {
   top: 0;
@@ -236,7 +237,6 @@ menu.r-menu > li menu li:last-child {
   margin-bottom: 6px;
 }
 menu.r-menu > li > menu {
-  border-top-left-radius: 0 !important;
   border-top-right-radius: 0 !important;
 }
 menu.r-menu > li:hover > menu, menu.r-menu > li li:hover > menu {
