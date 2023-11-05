@@ -13,7 +13,7 @@ class RComponent {
         this.element = element;
     }
 
-    static make(element) {
+    static make(element, bind = true) {
         if (typeof element === "string") {
             element = document.querySelector(`[data-ref='${element}']`);
         }
@@ -22,7 +22,7 @@ class RComponent {
             return false;
         }  
         let component = new this(element); 
-        if (typeof component.bind === 'function') {
+        if (bind && typeof component.bind === 'function') {
             component.bind();
         }
         return component;
