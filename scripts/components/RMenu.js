@@ -169,26 +169,29 @@ class RMenu extends RComponent {
                 item.htmlFor = id;
                 li.appendChild(item);
 
-                let handler = RMenuButton.make(item);
+                let ref;
+                if (option.type === "check") {
+                    ref = document.createElement("input");
+                    ref.type = "checkbox";
+                    ref.id = id;
+                    ref.checked = option.checked;
+                    li.appendChild(ref);
+                } else if (option.type === "radio") {
+                    ref = document.createElement("input");
+                    ref.type = "radio";
+                    ref.name = this.namePrefix + option.name;
+                    ref.id = id;
+                    ref.checked = option.checked;
+                    li.appendChild(ref);
+                }
+
+                let handler = RMenuButton.make(item, false);
+                handler.for = ref;
+                handler.bind();
                 this.addInput(option.name, handler, option);
-                handler.on('click', (target, value) => {
+                handler.on('change', (target, value) => {
                     this.events.trigger('option-clicked', this, option);
                 });
-
-                if (option.type === "check") {
-                    item = document.createElement("input");
-                    item.type = "checkbox";
-                    item.id = id;
-                    item.checked = option.checked;
-                    li.appendChild(item);
-                } else if (option.type === "radio") {
-                    item = document.createElement("input");
-                    item.type = "radio";
-                    item.name = this.namePrefix + option.name;
-                    item.id = id;
-                    item.checked = option.checked;
-                    li.appendChild(item);
-                }
             } else {
                 item = document.createElement("span");
                 item.innerHTML = option.text;
@@ -237,7 +240,6 @@ class RMenu extends RComponent {
     }
     getOptions() {
         let data = {};
-        console.log(this.inputs);
         this.inputs.forEach(inputRef => {
             if (inputRef.data.type === "check") {
                 let checked = inputRef.handler.checked;
@@ -265,16 +267,29 @@ class RMenu extends RComponent {
 
 class RMenuButton extends RButton {
     static className = "r-menubtn";
+    for = undefined;
+
     get checked() {
         if (this.element.tagName === "BUTTON") {
             return this.element.classList.contains("active");
         } else if (this.element.tagName === "LABEL") {
-            let id = this.element.htmlFor;
-            let input = document.getElementById(id);
+            let input = this.for;
             if (input) {
-                return input.checked;
+                return input.checked == true;
             }
             return undefined;
+        }
+    }
+    bind() {
+        super.bind();
+        if (this.element.tagName === "LABEL") {
+            let input = this.for;
+            if (input) {
+                input.addEventListener("change", () => {
+                    let value = input.checked == true;
+                    this.events.trigger('change', this, value);
+                });
+            }
         }
     }
 }
