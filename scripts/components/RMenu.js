@@ -48,6 +48,7 @@ let testoptions = [
                         text: "32x32",
                         name: "gridsize",
                         value: "32",
+                        checked: true
                     },
                     {
                         type: "radio",
@@ -55,19 +56,25 @@ let testoptions = [
                         name: "gridsize",
                         value: "16",
                     },
+                    {
+                        type: "radio",
+                        text: "8x8",
+                        name: "gridsize",
+                        value: "8",
+                    },
                 ]
             }
         ]
     },
     {
-        text: "Options",
+        text: "Plane options",
         options: [
             {
                 text: "Color",
                 options: [
                     {type: "button", text: "Custom", name: "color", value: "custom"},
                     {type: "separator"},
-                    {type: "radio", text: "Random", name: "color", value: "random"},
+                    {type: "radio", text: "Random", name: "color", value: undefined, checked: true},
                     {type: "radio", text: "Transparent", name: "color", value: "#00000000"},
                     {type: "radio", text: "Grey", name: "color", value: "#444444ff"},
                     {type: "radio", text: "Red", name: "color", value: "#ff0000ff"},
@@ -82,7 +89,7 @@ let testoptions = [
                 options: [
                     {type: "button", text: "Custom", name: "opacity", value: "custom"},
                     {type: "separator"},
-                    {type: "radio", text: "100%", name: "opacity", value: "100"},
+                    {type: "radio", text: "100%", name: "opacity", value: "100", checked: true},
                     {type: "radio", text: "75%", name: "opacity", value: "75"},
                     {type: "radio", text: "50%", name: "opacity", value: "50"},
                     {type: "radio", text: "25%", name: "opacity", value: "25"},
@@ -93,7 +100,7 @@ let testoptions = [
             {
                 text: "Texture",
                 options: [
-                    {type: "radio", text: "None", name: "texture", value: ""},
+                    {type: "radio", text: "None", name: "texture", value: undefined, checked: true},
                     {type: "separator"},
                     {type: "radio", text: "Concrete", name: "texture", value: "concrete1"},
                     {type: "radio", text: "Concrete Pillar", name: "texture", value: "concrete_pillar"},
@@ -103,8 +110,8 @@ let testoptions = [
             },
             {type: "separator"},
             {type: "check", text: "Mirror", name: "mirror"},
-            {type: "check", text: "Opaque", name: "opaque"},
-            {type: "check", text: "Solid", name: "solid"}
+            {type: "check", text: "Opaque", name: "opaque", checked: true},
+            {type: "check", text: "Solid", name: "solid", checked: true},
         ]
     }
 ];
@@ -216,8 +223,58 @@ class RMenu extends RComponent {
             return inputRef.handler;
         });
     }
+
+    // handle options through this RMenu class
+    // maybe a good idea? we will see how it works
+    // might have issues where the options are not updated if they are somehow supposed to change
+    updateOptions() {
+        // update the options to make sure checked is correct
+        this.inputs.forEach(inputRef => {
+            if (inputRef.data.type === "check" || inputRef.data.type === "radio") {
+                let checked = inputRef.handler.checked;
+            }
+        });
+    }
+    getOptions() {
+        let data = {};
+        console.log(this.inputs);
+        this.inputs.forEach(inputRef => {
+            if (inputRef.data.type === "check") {
+                let checked = inputRef.handler.checked;
+                if (checked) {
+                    data[inputRef.data.name] = true;
+                } else {
+                    if (!data.hasOwnProperty(inputRef.data.name)) {
+                        data[inputRef.data.name] = false;
+                    }
+                }
+            } else if (inputRef.data.type === "radio") {
+                let checked = inputRef.handler.checked;
+                if (checked) {
+                    data[inputRef.data.name] = inputRef.data.value;
+                } else {
+                    if (!data.hasOwnProperty(inputRef.data.name)) {
+                        data[inputRef.data.name] = undefined;
+                    }
+                }
+            }
+        });
+        return data;
+    }
 }
 
 class RMenuButton extends RButton {
     static className = "r-menubtn";
+    get checked() {
+        if (this.element.tagName === "BUTTON") {
+            return this.element.classList.contains("active");
+        } else if (this.element.tagName === "LABEL") {
+            let id = this.element.htmlFor;
+            let input = document.getElementById(id);
+            if (input) {
+                return input.checked;
+            }
+            return undefined;
+        }
+    }
 }
