@@ -4,6 +4,10 @@
 @use "components/r-btngroup";
 @use "components/r-menu";
 
+body {
+    background-color: #111;
+}
+
 .container {
     position: relative;
     height: 100vh;
@@ -13,6 +17,16 @@
     flex-direction: column;
 
     --toolbar-height: 32px;
+
+    opacity: 1;
+    transition-duration: 1s;
+    transition-property: opacity;
+    transition-delay: .3s;
+}
+.container.loading {
+    transition-delay: 0;
+    pointer-events: none;
+    opacity: 0;
 }
 
 /* Toolbar */
@@ -36,8 +50,16 @@
         background-color: #004488;
     }
 
+    .spacer {
+        flex: 1;
+    }
+
     & > menu {
         height: 100%;
+    }
+
+    .view-selector {
+        margin-right: 6px;
     }
 }
 
@@ -77,22 +99,7 @@
     background-color: #333;
     z-index: 1;
 }
-.window-viewselector {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform:translateX(-50%);
-    
-    padding:8px;
 
-    background-color: #555;
-    z-index: 6;
-
-    border-bottom-left-radius: 6px;
-    border-bottom-right-radius: 6px;
-
-    box-shadow: rgba(0,0,0,0.8) 0 0 8px;
-}
 /* Editor */
 .editor {
     display: flex;
@@ -100,15 +107,6 @@
     height: 100%;
     z-index: 2;
 
-    .editor-footer {
-        position: relative;
-        box-shadow: rgba(0,0,0,0.5) 0 0 12px;
-        z-index: 2;
-    }
-    .editor-footer {
-        background-color:#ddd;
-        min-height: 48px;
-    }
     .editor-content {
         background-color:#fff;
         flex: 2;
@@ -123,6 +121,13 @@
                 outline: none;
             }
         }
+    }
+    .editor-footer {
+        position: relative;
+        box-shadow: rgba(0,0,0,0.5) 0 0 12px;
+        z-index: 2;
+        background-color:#ddd;
+        //min-height: 48px;
     }
 }
 

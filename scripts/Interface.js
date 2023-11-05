@@ -33,7 +33,7 @@ class Interface {
 
     // Handle inputs, like buttons, sliders, menus, etc.
     bind() {
-        let viewSelector = RButtonGroup.make(document.getElementById("view-selector"));
+        let viewSelector = RButtonGroup.make("view-selector");
         viewSelector.on('input', (target, value) => {
             this.view = value;
         });

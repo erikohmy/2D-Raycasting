@@ -20,6 +20,7 @@ addEventListener('load', () => {
 });
 
 function start() {
+    document.getElementById("main").classList.remove("loading");
     interface = new Interface();
 
     let canvas = document.getElementById("panel")

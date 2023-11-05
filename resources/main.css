@@ -31,6 +31,7 @@ body {
   border-radius: 6px;
   outline: 0;
   border: 0;
+  font-size: 0.8rem;
   font-weight: 500;
   text-decoration: none;
   text-transform: uppercase;
@@ -48,6 +49,13 @@ body {
   height: 32px;
   background-color: #555;
   color: #fff;
+}
+
+.r-btn.small, .r-btngroup.small .r-btn {
+  height: 20px;
+  padding-left: 8px;
+  padding-right: 8px;
+  font-size: 0.6rem;
 }
 
 .r-btn.r-btn-active {
@@ -241,6 +249,10 @@ menu.r-menu > li:hover > menu, menu.r-menu > li li:hover > menu {
   display: block;
 }
 
+body {
+  background-color: #111;
+}
+
 .container {
   position: relative;
   height: 100vh;
@@ -249,6 +261,16 @@ menu.r-menu > li:hover > menu, menu.r-menu > li li:hover > menu {
   display: flex;
   flex-direction: column;
   --toolbar-height: 32px;
+  opacity: 1;
+  transition-duration: 1s;
+  transition-property: opacity;
+  transition-delay: 0.3s;
+}
+
+.container.loading {
+  transition-delay: 0;
+  pointer-events: none;
+  opacity: 0;
 }
 
 /* Toolbar */
@@ -269,8 +291,14 @@ menu.r-menu > li:hover > menu, menu.r-menu > li li:hover > menu {
   align-items: center;
   background-color: #004488;
 }
+.toolbar .spacer {
+  flex: 1;
+}
 .toolbar > menu {
   height: 100%;
+}
+.toolbar .view-selector {
+  margin-right: 6px;
 }
 
 .window-container {
@@ -317,34 +345,12 @@ menu.r-menu > li:hover > menu, menu.r-menu > li li:hover > menu {
   z-index: 1;
 }
 
-.window-viewselector {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 8px;
-  background-color: #555;
-  z-index: 6;
-  border-bottom-left-radius: 6px;
-  border-bottom-right-radius: 6px;
-  box-shadow: rgba(0, 0, 0, 0.8) 0 0 8px;
-}
-
 /* Editor */
 .editor {
   display: flex;
   flex-flow: column;
   height: 100%;
   z-index: 2;
-}
-.editor .editor-footer {
-  position: relative;
-  box-shadow: rgba(0, 0, 0, 0.5) 0 0 12px;
-  z-index: 2;
-}
-.editor .editor-footer {
-  background-color: #ddd;
-  min-height: 48px;
 }
 .editor .editor-content {
   background-color: #fff;
@@ -358,6 +364,12 @@ menu.r-menu > li:hover > menu, menu.r-menu > li li:hover > menu {
 }
 .editor .editor-content canvas:focus {
   outline: none;
+}
+.editor .editor-footer {
+  position: relative;
+  box-shadow: rgba(0, 0, 0, 0.5) 0 0 12px;
+  z-index: 2;
+  background-color: #ddd;
 }
 
 /* View */

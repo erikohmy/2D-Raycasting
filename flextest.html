@@ -9,18 +9,16 @@
     <script src="scripts/newapp.js" type="text/javascript"></script>
 </head>
 <body>
-    <div class="container" id="main">
-        <div class="window-viewselector">
-            <div class="btn-activecolor-primary" id="view-selector">
+    <div class="container loading" id="main">
+        <div class="toolbar">
+            <div class="menu-title">Raycaster</div>
+            <menu data-ref="main-menu"></menu>
+            <div class="spacer"></div>
+            <div class="btn-activecolor-primary small view-selector" data-ref="view-selector">
                 <button value="editor"><span>Editor</span></button>
                 <button value="split"><span>Split</span></button>
                 <button value="view"><span>View</span></button>
             </div>
-        </div>
-        
-        <div class="toolbar">
-            <div class="menu-title">Raycaster</div>
-            <menu data-ref="main-menu"></menu>
         </div>
         <div class="window-container">
             <div class="window window-left editor">
