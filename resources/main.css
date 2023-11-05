@@ -313,6 +313,19 @@ menu.r-menu > li:hover > menu, menu.r-menu > li li:hover > menu {
   background-color: #333;
   color: #fff;
 }
+.editor .editor-toolbar .menu-title {
+  padding: 0 16px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  background-color: #004488;
+}
+.editor .editor-toolbar .separator {
+  height: 24px;
+  width: 1px;
+  background-color: rgba(255, 255, 255, 0.2);
+  margin: 0 8px;
+}
 .editor .editor-footer {
   background-color: #ddd;
   min-height: 48px;
