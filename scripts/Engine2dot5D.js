@@ -329,15 +329,47 @@ class Engine2dot5D {
         this.loadTextures();
 
         // inject display into document
-        document.body.appendChild(this.display.canvas);
+        document.getElementById("raycast-view").appendChild(this.display.canvas);
 
         this.world.addPlane(new Plane(this.gridSize*6,this.gridSize,this.gridSize*6,-this.gridSize, {
             texture: "concrete1",
         }));
 
+        // TEMPORARY, this might be intense, better to handle this with events and such
+        setInterval(() => {
+            this.updateSize();
+        }, 1000);
+
         this.loop();
     }
 
+    updateSize() {
+        /* come up with a way of preserving the offset
+        // maybe get percent of top left, then set offset to that percent of new size
+        this.offset = {
+            x: this.size.width/2,
+            y: this.size.height/2
+        }
+        */
+        // offset in percent
+        let offsetPercent = {
+            x: this.offset.x / this.size.width,
+            y: this.offset.y / this.size.height
+        }
+
+        this.size = {
+            width: this.canvas.offsetWidth,
+            height: this.canvas.offsetHeight
+        }
+        this.offset = {
+            x: this.size.width * offsetPercent.x,
+            y: this.size.height * offsetPercent.y
+        }
+
+        this.canvas.width = this.size.width
+        this.canvas.height = this.size.height
+    }
+    
     addTexture(name, src, fallback) {
         this.textures[name] = {
             name: name,
@@ -742,7 +774,7 @@ class Engine2dot5D {
 
         // grid and outline
         if (this.showGrid) {
-            this.setcolor("#eee")
+            this.setcolor("#ccc"); // make this a setting, used #eee
             this.renderGrid()
             this.applyOffset=false;
             this.drawRect( 0, 0, this.size.width, this.size.height)
