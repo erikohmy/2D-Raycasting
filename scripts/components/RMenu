@@ -1,3 +1,0 @@
-class RMenu extends RComponent {
-    static className = "r-menu";
-}

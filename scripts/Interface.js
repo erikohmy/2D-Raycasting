@@ -39,12 +39,14 @@ class Interface {
         });
         this.addInput('viewSelector', viewSelector);
 
+        let menuMain = RMenu.make("main-menu");
+        this.addInput('menuMain', menuMain);
+
         let testbutton = RButton.make('btn-test');
         testbutton.on('click', (target, value) => {
-            console.log('clicked', target, value);
             viewSelector.disabled = !viewSelector.disabled;
         });
-        window.testbutton = testbutton;
+        this.addInput('testbutton', testbutton);
     } 
 
     addInput(name, handler) {

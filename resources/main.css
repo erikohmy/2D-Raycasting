@@ -1,0 +1,232 @@
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+/* colors */
+body {
+  /*--r-color-primary: #0099ff;*/
+  --r-color-primary: #2266ff;
+  --r-color-primary-dark: #1976d2;
+  --r-color-primary-light: #bbdefb;
+}
+
+.btn-activecolor-primary {
+  --r-color-button-active: var(--r-color-primary);
+}
+
+/* button styling */
+.r-btn {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  outline: 0;
+  border: 0;
+  font-weight: 500;
+  text-decoration: none;
+  text-transform: uppercase;
+  white-space: nowrap;
+  letter-spacing: 0.0892857143em;
+  transition-duration: 0.28s;
+  transition-property: box-shadow, transform, opacity;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+  vertical-align: middle;
+  /**/
+  padding: 0 16px;
+  height: 32px;
+  background-color: #555;
+  color: #fff;
+}
+
+.r-btn.r-btn-active {
+  background-color: var(--r-color-button-active);
+}
+
+.r-btn:not(.r-disabled) {
+  cursor: pointer;
+}
+
+.r-btn:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: inherit;
+  background-color: #fff;
+  opacity: 0;
+  transition-duration: 0.28s;
+  transition-property: opacity;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.r-btn:not(.r-disabled):hover::before {
+  opacity: 0.12;
+}
+
+.r-btn:not(.r-disabled):active::before {
+  opacity: 0.24;
+}
+
+.r-btn.r-disabled {
+  pointer-events: none;
+  opacity: 0.38;
+}
+
+.r-btn span {
+  align-items: center;
+  color: inherit;
+  display: flex;
+  flex: 1 0 auto;
+  justify-content: inherit;
+  line-height: normal;
+  position: relative;
+  transition: inherit;
+  transition-property: opacity;
+}
+
+/* ButtonGroup */
+.r-btngroup {
+  position: relative;
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+.r-btngroup .r-btn:first-child:not(:last-child) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.r-btngroup .r-btn:last-child:not(:first-child) {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.r-btngroup .r-btn:not(:last-child, :first-child) {
+  border-radius: 0;
+}
+
+menu.r-menu {
+  font-size: 0;
+  list-style-type: none;
+}
+
+.container {
+  position: relative;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  display: flex;
+}
+
+.window {
+  position: relative;
+  flex: 1;
+  height: 100%;
+  max-width: 100%;
+  transition-property: flex, box-shadow, max-width;
+  transition-duration: 0.3s;
+  overflow: hidden;
+}
+
+.view-dynamic .window:hover {
+  flex: 3;
+}
+
+.view-editor .window-right {
+  max-width: 0%;
+  flex: 0;
+}
+
+.view-view .window-left {
+  max-width: 0%;
+  flex: 0;
+}
+
+.window-left {
+  background-color: #fff;
+  z-index: 2;
+  box-shadow: rgb(0, 0, 0) 0 0 32px;
+}
+
+.view-view .window-left {
+  box-shadow: rgba(0, 0, 0, 0) 0 0 32px;
+}
+
+.window-right {
+  background-color: #333;
+  z-index: 1;
+}
+
+.window-viewselector {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px;
+  background-color: #555;
+  z-index: 3;
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+  box-shadow: rgba(0, 0, 0, 0.8) 0 0 8px;
+}
+
+/* Editor */
+.editor {
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+  z-index: 2;
+}
+.editor .editor-toolbar, .editor .editor-footer {
+  position: relative;
+  min-height: 48px;
+  background-color: #ddd;
+  box-shadow: rgba(0, 0, 0, 0.5) 0 0 12px;
+  z-index: 2;
+}
+.editor .editor-content {
+  background-color: #fff;
+  flex: 2;
+  overflow: hidden;
+  z-index: 1;
+}
+.editor .editor-content canvas {
+  width: 100%;
+  height: 100%;
+}
+.editor .editor-content canvas:focus {
+  outline: none;
+}
+
+/* View */
+.display-container {
+  --display-padding: 0px;
+  --display-width: 800px;
+  background-color: #222;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+.display-container .display-container-inner {
+  display: flex;
+  aspect-ratio: 2/1;
+  flex-grow: 1;
+  max-height: calc(100% - var(--display-padding) * 2);
+  justify-content: center;
+}
+.display-container .display-container-inner .raycast-display {
+  display: block;
+  aspect-ratio: 2/1;
+  background-color: #000;
+  max-width: calc(100% - var(--display-padding) * 2);
+  box-shadow: rgba(0, 0, 0, 0.5) 0 0 16px;
+}

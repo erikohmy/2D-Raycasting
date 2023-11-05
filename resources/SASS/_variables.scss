@@ -1,0 +1,11 @@
+/* colors */
+body {
+    /*--r-color-primary: #0099ff;*/
+    --r-color-primary: #2266ff;
+    --r-color-primary-dark: #1976d2;
+    --r-color-primary-light: #bbdefb;
+}
+
+.btn-activecolor-primary {
+    --r-color-button-active: var(--r-color-primary);
+}

@@ -1,0 +1,17 @@
+/* ButtonGroup */
+.r-btngroup {
+    position: relative;
+    display: inline-flex;
+    vertical-align: middle;
+}
+.r-btngroup .r-btn:first-child:not(:last-child) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+.r-btngroup .r-btn:last-child:not(:first-child) {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+.r-btngroup .r-btn:not(:last-child,:first-child) {
+    border-radius: 0;
+}

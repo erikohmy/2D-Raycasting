@@ -1,0 +1,78 @@
+/* button styling */
+.r-btn {
+    position: relative;
+    display: inline-flex;
+    flex: 0 0 auto;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 6px;
+    
+    outline: 0;
+    border: 0;
+
+    font-weight: 500;
+    text-decoration: none;
+    text-transform: uppercase;
+    white-space: nowrap;
+    letter-spacing: 0.0892857143em;
+
+    transition-duration: .28s;
+    transition-property: box-shadow,transform,opacity;
+    transition-timing-function: cubic-bezier(.4,0,.2,1);
+
+    user-select: none;
+    vertical-align: middle;
+
+    /**/
+
+    padding: 0 16px;
+    height: 32px;
+
+    background-color: #555;
+    color: #fff;
+}
+.r-btn.r-btn-active {
+    background-color: var(--r-color-button-active);
+}
+.r-btn:not(.r-disabled) {
+    cursor: pointer;
+}
+.r-btn:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    border-radius: inherit;
+    background-color: #fff;
+
+    opacity: 0;
+    transition-duration: .28s;
+    transition-property: opacity;
+    transition-timing-function: cubic-bezier(.4,0,.2,1);
+}
+.r-btn:not(.r-disabled):hover::before {
+    opacity: .12;
+}
+.r-btn:not(.r-disabled):active::before {
+    opacity: .24;
+}
+.r-btn.r-disabled {
+    pointer-events: none;
+    opacity: .38;
+}
+.r-btn span {
+    align-items: center;
+    color: inherit;
+    display: flex;
+    flex: 1 0 auto;
+    justify-content: inherit;
+    line-height: normal;
+    position: relative;
+    transition: inherit;
+    transition-property: opacity;
+}

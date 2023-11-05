@@ -11,6 +11,7 @@ let scripts = [
     "scripts/components/RComponent.js",
     "scripts/components/RButton.js",
     "scripts/components/RButtonGroup.js",
+    "scripts/components/RMenu.js",
 ];
 let interface;
 let engine;
