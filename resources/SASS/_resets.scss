@@ -3,3 +3,6 @@ html, body {
     padding: 0;
     font-family: Arial, Helvetica, sans-serif;
 }
+div, button,label {
+    box-sizing: border-box;
+}

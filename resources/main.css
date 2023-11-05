@@ -5,6 +5,10 @@ html, body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+div, button, label {
+  box-sizing: border-box;
+}
+
 /* colors */
 body {
   /*--r-color-primary: #0099ff;*/
@@ -131,7 +135,8 @@ menu.r-menu, menu.r-menu menu {
   margin: 0;
 }
 menu.r-menu button, menu.r-menu label {
-  display: block;
+  display: flex;
+  align-items: center;
   position: relative;
   font-size: 1rem;
   text-align: left;
@@ -145,6 +150,9 @@ menu.r-menu button, menu.r-menu label {
 }
 menu.r-menu button {
   width: 100%;
+}
+menu.r-menu > button, menu.r-menu label {
+  height: 100%;
 }
 menu.r-menu input[type=checkbox], menu.r-menu input[type=radio] {
   -webkit-appearance: none;
@@ -241,6 +249,35 @@ menu.r-menu > li:hover > menu, menu.r-menu > li li:hover > menu {
   width: 100vw;
   overflow: hidden;
   display: flex;
+  flex-direction: column;
+  --toolbar-height: 32px;
+}
+
+/* Toolbar */
+.toolbar {
+  position: relative;
+  box-shadow: rgba(0, 0, 0, 0.5) 0 0 12px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  background-color: #333;
+  color: #fff;
+  height: var(--toolbar-height);
+}
+.toolbar .menu-title {
+  padding: 0 16px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  background-color: #004488;
+}
+.toolbar > menu {
+  height: 100%;
+}
+
+.window-container {
+  display: flex;
+  height: calc(100% - var(--toolbar-height));
 }
 
 .window {
@@ -289,7 +326,7 @@ menu.r-menu > li:hover > menu, menu.r-menu > li li:hover > menu {
   transform: translateX(-50%);
   padding: 8px;
   background-color: #555;
-  z-index: 3;
+  z-index: 6;
   border-bottom-left-radius: 6px;
   border-bottom-right-radius: 6px;
   box-shadow: rgba(0, 0, 0, 0.8) 0 0 8px;
@@ -302,29 +339,10 @@ menu.r-menu > li:hover > menu, menu.r-menu > li li:hover > menu {
   height: 100%;
   z-index: 2;
 }
-.editor .editor-toolbar, .editor .editor-footer {
+.editor .editor-footer {
   position: relative;
   box-shadow: rgba(0, 0, 0, 0.5) 0 0 12px;
   z-index: 2;
-}
-.editor .editor-toolbar {
-  display: flex;
-  align-items: center;
-  background-color: #333;
-  color: #fff;
-}
-.editor .editor-toolbar .menu-title {
-  padding: 0 16px;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  background-color: #004488;
-}
-.editor .editor-toolbar .separator {
-  height: 24px;
-  width: 1px;
-  background-color: rgba(255, 255, 255, 0.2);
-  margin: 0 8px;
 }
 .editor .editor-footer {
   background-color: #ddd;

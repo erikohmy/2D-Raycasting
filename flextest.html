@@ -17,83 +17,86 @@
                 <button value="view"><span>View</span></button>
             </div>
         </div>
-        <div class="window window-left editor">
-            <div class="editor-toolbar">
-                <div class="menu-title">Raycaster</div>
-                <menu data-ref="main-menu">
-                    <li>
-                        <label>File</label>
-                        <menu>
-                            <li><button value="new">New</button></li>
-                            <li><button value="open">Open</button></li>
-                            <li><button value="save-as">Download</button></li>
-                        </menu>
-                    </li>
-                    <li>
-                        <label>Options</label>
-                        <menu>
-                            <li>
-                                <label>Color</label>
-                                <menu>
-                                    <li><button value="options-opacity-custom">Custom</button></li>
-                                    <li data-separator></li>
-                                    <li><input type="radio" value="" name="options-color" id="options-color-1" checked /><label for="options-color-1">Random</label></li>
-                                    <li><input type="radio" value="#00000000" name="options-color" id="options-color-2" /><label for="options-color-2">Transparent</label></li>
-                                    <li><input type="radio" value="#444444ff" name="options-color" id="options-color-3" /><label for="options-color-3">Grey</label></li>
-                                    <li><input type="radio" value="#ff0000ff" name="options-color" id="options-color-4" /><label for="options-color-4">Red</label></li>
-                                    <li><input type="radio" value="#00ff00ff" name="options-color" id="options-color-5" /><label for="options-color-5">Green</label></li>
-                                    <li><input type="radio" value="#0000ffff" name="options-color" id="options-color-6" /><label for="options-color-6">Blue</label></li>
-                                    <li><input type="radio" value="#000000ff" name="options-color" id="options-color-7" /><label for="options-color-7">Black</label></li>
-                                    <li><input type="radio" value="#0099ffff" name="options-color" id="options-color-8" /><label for="options-color-8">LightBlue</label></li>
-                                </menu>
-                            </li>
-                            <li>
-                                <label>Texture</label>
-                                <menu>
-                                    <li><input type="radio" value="" name="options-texture" id="options-texture-1" checked /><label for="options-texture-1">None</label></li>
-                                    <li data-separator></li>
-                                    <li><input type="radio" value="concrete1" name="options-texture" id="options-texture-2" /><label for="options-texture-2">Concrete</label></li>
-                                    <li><input type="radio" value="concrete_pillar" name="options-texture" id="options-texture-3" /><label for="options-texture-3">Concrete Pillar</label></li>
-                                    <li><input type="radio" value="grate" name="options-texture" id="options-texture-4" /><label for="options-texture-4">Grate</label></li>
-                                    <li><input type="radio" value="debug" name="options-texture" id="options-texture-5" /><label for="options-texture-5">Debug</label></li>
-                                </menu>
-                            </li>
-                            <li>
-                                <label>Opacity</label>
-                                <menu>
-                                    <li><button value="options-opacity-custom">Custom</button></li>
-                                    <li data-separator></li>
-                                    <li><input type="radio" value="100" name="options-opacity" id="options-opacity-100" checked /><label for="options-opacity-100">100%</label></li>
-                                    <li><input type="radio" value="75"  name="options-opacity" id="options-opacity-75" /><label for="options-opacity-75">75%</label></li>
-                                    <li><input type="radio" value="50"  name="options-opacity" id="options-opacity-50" /><label for="options-opacity-50">50%</label></li>
-                                    <li><input type="radio" value="25"  name="options-opacity" id="options-opacity-25" /><label for="options-opacity-25">25%</label></li>
-                                    <li><input type="radio" value="10"  name="options-opacity" id="options-opacity-10" /><label for="options-opacity-10">10%</label></li>
-                                    <li><input type="radio" value="0"   name="options-opacity" id="options-opacity-0" /><label for="options-opacity-0">0%</label></li>
-                                </menu>
-                            </li>
-                            <li data-separator></li>
-                            <li>
-                                <input type="checkbox" value="mirror" id="options-mirror" name="options-mirror" />
-                                <label for="options-mirror">Mirror</label>
-                            </li>
-                            <li>
-                                <input type="checkbox" value="opaque" id="options-opaque" name="options-opaque" />
-                                <label for="options-opaque">Opaque</label>
-                            </li>
-                            <li>
-                                <input type="checkbox" value="solid" id="options-solid" name="options-solid" />
-                                <label for="options-solid">Solid</label>
-                            </li>
-                        </menu>
-                    </li>
-                </menu>
-            </div>
-            <div class="editor-content"><canvas id="panel" tabindex='1'></canvas></div>
-            <div class="editor-footer"><button value="hello world" data-ref="btn-test" style="display: none;"><span>Test</span></button></div>
+        
+        <div class="toolbar">
+            <div class="menu-title">Raycaster</div>
+            <menu data-ref="main-menu">
+                <li>
+                    <label>File</label>
+                    <menu>
+                        <li><button value="new">New</button></li>
+                        <li><button value="open">Open</button></li>
+                        <li><button value="save-as">Download</button></li>
+                    </menu>
+                </li>
+                <li>
+                    <label>Options</label>
+                    <menu>
+                        <li>
+                            <label>Color</label>
+                            <menu>
+                                <li><button value="options-opacity-custom">Custom</button></li>
+                                <li data-separator></li>
+                                <li><input type="radio" value="" name="options-color" id="options-color-1" checked /><label for="options-color-1">Random</label></li>
+                                <li><input type="radio" value="#00000000" name="options-color" id="options-color-2" /><label for="options-color-2">Transparent</label></li>
+                                <li><input type="radio" value="#444444ff" name="options-color" id="options-color-3" /><label for="options-color-3">Grey</label></li>
+                                <li><input type="radio" value="#ff0000ff" name="options-color" id="options-color-4" /><label for="options-color-4">Red</label></li>
+                                <li><input type="radio" value="#00ff00ff" name="options-color" id="options-color-5" /><label for="options-color-5">Green</label></li>
+                                <li><input type="radio" value="#0000ffff" name="options-color" id="options-color-6" /><label for="options-color-6">Blue</label></li>
+                                <li><input type="radio" value="#000000ff" name="options-color" id="options-color-7" /><label for="options-color-7">Black</label></li>
+                                <li><input type="radio" value="#0099ffff" name="options-color" id="options-color-8" /><label for="options-color-8">LightBlue</label></li>
+                            </menu>
+                        </li>
+                        <li>
+                            <label>Texture</label>
+                            <menu>
+                                <li><input type="radio" value="" name="options-texture" id="options-texture-1" checked /><label for="options-texture-1">None</label></li>
+                                <li data-separator></li>
+                                <li><input type="radio" value="concrete1" name="options-texture" id="options-texture-2" /><label for="options-texture-2">Concrete</label></li>
+                                <li><input type="radio" value="concrete_pillar" name="options-texture" id="options-texture-3" /><label for="options-texture-3">Concrete Pillar</label></li>
+                                <li><input type="radio" value="grate" name="options-texture" id="options-texture-4" /><label for="options-texture-4">Grate</label></li>
+                                <li><input type="radio" value="debug" name="options-texture" id="options-texture-5" /><label for="options-texture-5">Debug</label></li>
+                            </menu>
+                        </li>
+                        <li>
+                            <label>Opacity</label>
+                            <menu>
+                                <li><button value="options-opacity-custom">Custom</button></li>
+                                <li data-separator></li>
+                                <li><input type="radio" value="100" name="options-opacity" id="options-opacity-100" checked /><label for="options-opacity-100">100%</label></li>
+                                <li><input type="radio" value="75"  name="options-opacity" id="options-opacity-75" /><label for="options-opacity-75">75%</label></li>
+                                <li><input type="radio" value="50"  name="options-opacity" id="options-opacity-50" /><label for="options-opacity-50">50%</label></li>
+                                <li><input type="radio" value="25"  name="options-opacity" id="options-opacity-25" /><label for="options-opacity-25">25%</label></li>
+                                <li><input type="radio" value="10"  name="options-opacity" id="options-opacity-10" /><label for="options-opacity-10">10%</label></li>
+                                <li><input type="radio" value="0"   name="options-opacity" id="options-opacity-0" /><label for="options-opacity-0">0%</label></li>
+                            </menu>
+                        </li>
+                        <li data-separator></li>
+                        <li>
+                            <input type="checkbox" value="mirror" id="options-mirror" name="options-mirror" />
+                            <label for="options-mirror">Mirror</label>
+                        </li>
+                        <li>
+                            <input type="checkbox" value="opaque" id="options-opaque" name="options-opaque" />
+                            <label for="options-opaque">Opaque</label>
+                        </li>
+                        <li>
+                            <input type="checkbox" value="solid" id="options-solid" name="options-solid" />
+                            <label for="options-solid">Solid</label>
+                        </li>
+                    </menu>
+                </li>
+            </menu>
         </div>
-        <div class="window window-right">
-            <div class="display-container">
-                <div class="display-container-inner" id="raycast-view"></div>
+        <div class="window-container">
+            <div class="window window-left editor">
+                <div class="editor-content"><canvas id="panel" tabindex='1'></canvas></div>
+                <div class="editor-footer"><button value="hello world" data-ref="btn-test" style="display: none;"><span>Test</span></button></div>
+            </div>
+            <div class="window window-right">
+                <div class="display-container">
+                    <div class="display-container-inner" id="raycast-view"></div>
+                </div>
             </div>
         </div>
     </div>

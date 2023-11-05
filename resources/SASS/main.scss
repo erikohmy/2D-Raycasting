@@ -9,8 +9,41 @@
     height: 100vh;
     width: 100vw;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+
+    --toolbar-height: 32px;
+}
+
+/* Toolbar */
+.toolbar {
+    position: relative;
+    box-shadow: rgba(0,0,0,0.5) 0 0 12px;
+    z-index: 3;
 
     display: flex;
+    align-items: center;
+    background-color:#333;
+    color:#fff;
+
+    height: var(--toolbar-height);
+
+    .menu-title {
+        padding: 0 16px;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        background-color: #004488;
+    }
+
+    & > menu {
+        height: 100%;
+    }
+}
+
+.window-container {
+    display: flex;
+    height: calc(100% - var(--toolbar-height));
 }
 .window {
     position: relative;
@@ -53,7 +86,7 @@
     padding:8px;
 
     background-color: #555;
-    z-index: 3;
+    z-index: 6;
 
     border-bottom-left-radius: 6px;
     border-bottom-right-radius: 6px;
@@ -61,37 +94,16 @@
     box-shadow: rgba(0,0,0,0.8) 0 0 8px;
 }
 /* Editor */
-
 .editor {
     display: flex;
     flex-flow: column;
     height: 100%;
     z-index: 2;
 
-    .editor-toolbar, .editor-footer {
+    .editor-footer {
         position: relative;
         box-shadow: rgba(0,0,0,0.5) 0 0 12px;
         z-index: 2;
-    }
-    .editor-toolbar {
-        display: flex;
-        align-items: center;
-        background-color:#333;
-        color:#fff;
-
-        .menu-title {
-            padding: 0 16px;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            background-color: #004488;
-        }
-        .separator {
-            height: 24px;
-            width: 1px;
-            background-color: rgba(255,255,255,0.2);
-            margin: 0 8px;
-        }   
     }
     .editor-footer {
         background-color:#ddd;

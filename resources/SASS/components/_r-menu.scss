@@ -13,7 +13,8 @@ menu.r-menu {
     }
 
     button, label {
-        display: block;
+        display: flex;
+        align-items: center;
         position: relative;
         font-size: 1rem;
         text-align: left;
@@ -29,6 +30,10 @@ menu.r-menu {
 
     button {
         width: 100%;
+    }
+
+    & > button, label {
+        height: 100%;
     }
 
     input[type="checkbox"], input[type="radio"] {
