@@ -3,7 +3,7 @@ class RButtonGroup extends RComponent {
     active = undefined;
 
     static className = "r-btngroup";
-    static classNameActive = "btn-active";
+    static classNameActive = "r-btn-active";
 
     // Events
     //  input

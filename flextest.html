@@ -124,7 +124,7 @@
         }
 
         /* button styling */
-        .btn {
+        .r-btn {
             position: relative;
             display: inline-flex;
             flex: 0 0 auto;
@@ -158,13 +158,13 @@
             background-color: #555;
             color: #fff;
         }
-        .btn.btn-active {
+        .r-btn.r-btn-active {
             background-color: var(--r-color-button-active);
         }
-        .btn:not(.r-disabled) {
+        .r-btn:not(.r-disabled) {
             cursor: pointer;
         }
-        .btn:before {
+        .r-btn:before {
             content: "";
             position: absolute;
             top: 0;
@@ -180,17 +180,17 @@
             transition-property: opacity;
             transition-timing-function: cubic-bezier(.4,0,.2,1);
         }
-        .btn:not(.r-disabled):hover::before {
+        .r-btn:not(.r-disabled):hover::before {
             opacity: .12;
         }
-        .btn:not(.r-disabled):active::before {
+        .r-btn:not(.r-disabled):active::before {
             opacity: .24;
         }
-        .btn.r-disabled {
+        .r-btn.r-disabled {
             pointer-events: none;
             opacity: .38;
         }
-        .btn span {
+        .r-btn span {
             align-items: center;
             color: inherit;
             display: flex;
@@ -202,20 +202,21 @@
             transition-property: opacity;
         }
 
-        .btn-group {
+        /* ButtonGroup */
+        .r-btngroup {
             position: relative;
             display: inline-flex;
             vertical-align: middle;
         }
-        .btn-group .btn:first-child:not(:last-child) {
+        .r-btngroup .r-btn:first-child:not(:last-child) {
             border-top-right-radius: 0;
             border-bottom-right-radius: 0;
         }
-        .btn-group .btn:last-child:not(:first-child) {
+        .r-btngroup .r-btn:last-child:not(:first-child) {
             border-top-left-radius: 0;
             border-bottom-left-radius: 0;
         }
-        .btn-group .btn:not(:last-child,:first-child) {
+        .r-btngroup .r-btn:not(:last-child,:first-child) {
             border-radius: 0;
         }
 
@@ -234,15 +235,15 @@
 <body>
     <div class="container" id="main">
         <div class="window-viewselector">
-            <div class="r-btngroup btn-group btn-activecolor-primary" id="view-selector">
-                <button value="editor" class="btn"><span>Editor</span></button>
-                <button value="split" class="btn"><span>Split</span></button>
-                <button value="view" class="btn"><span>View</span></button>
+            <div class="btn-activecolor-primary" id="view-selector">
+                <button value="editor"><span>Editor</span></button>
+                <button value="split"><span>Split</span></button>
+                <button value="view"><span>View</span></button>
             </div>
         </div>
         <div class="window window-left editor">
             <div class="editor-toolbar">
-                <button value="hello world" class="r-btn btn" data-ref="btn-test"><span>Test</span></button>
+                <button value="hello world" data-ref="btn-test"><span>Test</span></button>
             </div>
             <div class="editor-content"><canvas id="panel" tabindex='1'></canvas></div>
             <div class="editor-footer"><div data-ref="test">hello world</div></div>
