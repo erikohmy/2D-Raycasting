@@ -41,17 +41,41 @@ class Interface {
 
         let menuMain = RMenu.make("main-menu");
         menuMain.on('option-clicked', (target, option) => {
-            //console.log(option);
+            console.log(option);
+            if (option?.name === 'gridsize') {
+                let size = Number(this.getOption('gridsize'));
+                engine.gridSize = size;
+            }
+
+            let event = option?.event;
+            if (event) {
+                this.events.trigger(event, target, option);
+                engine.events.trigger(event, target, option);
+            }
             //console.log(target.getOptions())
         });
         menuMain.generateHtml(testoptions);
         this.addInput('menuMain', menuMain);
+
+        // actions
+        this.events.on("action-download-world", () => {
+            this.actionDownload();
+        });
     }
 
     getOptions() {
         let menuOptions = this.getInput('menuMain').getOptions();
         // if we add more options, we can add them here
         return menuOptions;
+    }
+
+    getOption(name) {
+        let options = this.getOptions();
+        return options[name];
+    }
+
+    setOption(name, value) {
+        this.getInput('menuMain').setOption(name, value);
     }
 
     addInput(name, handler) {
@@ -77,5 +101,19 @@ class Interface {
         inputs.forEach(input => {
             input.value = value;
         });
+    }
+
+    /////// Interface actions ///////
+    actionDownload() {
+        let data = engine.exportWorldToJSON();
+        let blob = new Blob([data], { type: "application/json" });
+        let url = URL.createObjectURL(blob);
+        let a = document.createElement("a");
+        a.href = url;
+    
+        let date = new Date();
+        let datestring = date.toISOString().split("T")[0] + " " + date.toTimeString().split(" ")[0];
+        a.download = "world-" + datestring + ".world.json";
+        a.click();
     }
 }

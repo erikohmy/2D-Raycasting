@@ -23,19 +23,23 @@ let testoptions = [
         ]
     },
     {
+        text: "Tools",
+        options: [
+            {type: "radio", text: "Select", name: "tool", value: "select", event: "selected-tool"},
+            {type: "radio", text: "Create plane", name: "tool", value: "plane", event: "selected-tool", checked: true},
+        ]
+    },
+    {
         text: "View",
         options: [
             {
                 text: "Grid",
                 options: [
                     {
-                        type: "button",
-                        text: "Custom",
+                        type: "radio",
+                        text: "128x128",
                         name: "gridsize",
-                        value: "custom"
-                    },
-                    {
-                        type: "separator",
+                        value: "128",
                     },
                     {
                         type: "radio",
@@ -222,22 +226,10 @@ class RMenu extends RComponent {
     getInputs(name) {
         return this.inputs.filter(inputRef => {
             return inputRef.name === name;
-        }).map(inputRef => {
-            return inputRef.handler;
         });
     }
 
-    // handle options through this RMenu class
-    // maybe a good idea? we will see how it works
-    // might have issues where the options are not updated if they are somehow supposed to change
-    updateOptions() {
-        // update the options to make sure checked is correct
-        this.inputs.forEach(inputRef => {
-            if (inputRef.data.type === "check" || inputRef.data.type === "radio") {
-                let checked = inputRef.handler.checked;
-            }
-        });
-    }
+    // TODO: add a type to value, so we can transform it to the correct type, ex. number, boolean, etc.
     getOptions() {
         let data = {};
         this.inputs.forEach(inputRef => {
@@ -263,6 +255,17 @@ class RMenu extends RComponent {
         });
         return data;
     }
+    setOption(name, value) {
+        let inputs = this.getInputs(name);
+        inputs.forEach(input => {
+            console.log(input)
+            if (input.data.type === "check") {
+                input.handler.checked = value == true;
+            } else if (input.data.type === "radio") {
+                input.handler.checked = input.data.value === value;
+            }
+        });
+    }
 }
 
 class RMenuButton extends RButton {
@@ -270,9 +273,7 @@ class RMenuButton extends RButton {
     for = undefined;
 
     get checked() {
-        if (this.element.tagName === "BUTTON") {
-            return this.element.classList.contains("active");
-        } else if (this.element.tagName === "LABEL") {
+        if (this.element.tagName === "LABEL") {
             let input = this.for;
             if (input) {
                 return input.checked == true;
@@ -280,6 +281,15 @@ class RMenuButton extends RButton {
             return undefined;
         }
     }
+    set checked(value) {
+        if (this.element.tagName === "LABEL") {
+            let input = this.for;
+            if (input) {
+                input.checked = value == true;
+            }
+        }
+    }
+
     bind() {
         super.bind();
         if (this.element.tagName === "LABEL") {

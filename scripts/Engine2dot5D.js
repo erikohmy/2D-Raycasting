@@ -154,8 +154,10 @@ class Engine2dot5D {
                 }
             } else if (key == this.controls.toolSelect) {
                 this.selectedTool = "select";
+                engineInterface.setOption('tool', 'select');
             } else if (key == this.controls.toolPlane) {
                 this.selectedTool = "plane";
+                engineInterface.setOption('tool', 'plane');
             } else if (key == this.controls.delete) {
                 if (this.selection) {
                     if (this.selection.type == "plane") {
@@ -320,6 +322,14 @@ class Engine2dot5D {
             let loaded = Object.values(this.textures).filter(t => t.loaded).length;
             let failed = Object.values(this.textures).filter(t => t.failed).length;
             console.log("loaded " + loaded + " textures", failed ? failed + " failed to load" : "");
+        });
+
+        // from interface
+        this.events.on("action-reset-world", () => {
+            this.world.planes = [];
+        });
+        this.events.on("selected-tool", () => {
+            this.selectedTool = engineInterface.getOption('tool');
         });
 
         // load textures
