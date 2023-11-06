@@ -154,8 +154,10 @@ class Engine2dot5D {
                 }
             } else if (key == this.controls.toolSelect) {
                 this.selectedTool = "select";
+                engineInterface.setOption('tool', 'select');
             } else if (key == this.controls.toolPlane) {
                 this.selectedTool = "plane";
+                engineInterface.setOption('tool', 'plane');
             } else if (key == this.controls.delete) {
                 if (this.selection) {
                     if (this.selection.type == "plane") {
@@ -214,13 +216,15 @@ class Engine2dot5D {
                 [p1x, p1y] = this.snapToGrid(p1x,p1y);
                 [p2x, p2y] = this.snapToGrid(p2x,p2y);
 
+                let options = engineInterface.getOptions();
+
                 let added = this.world.addPlane(new Plane(p1x,p1y,p2x,p2y, {
-                    color: document.getElementById("optionsColor").value || this.getRandomColor(),
-                    texture: document.getElementById("optionsTexture").value || undefined,
-                    mirror: document.getElementById("optionsIsMirror").checked,
-                    opacity:  document.getElementById("optionsOpacity").value,
-                    opaque:  document.getElementById("optionsOpaque").checked,
-                    solid: document.getElementById("optionsSolid").checked,
+                    color: options.color || this.getRandomColor(),
+                    texture: options.texture || undefined,
+                    mirror: options.mirror,
+                    opacity:  options.opacity,
+                    opaque:  options.opaque,
+                    solid: options.solid,
                 }));
                 if (added) {
                     this.selection = {
@@ -320,6 +324,14 @@ class Engine2dot5D {
             console.log("loaded " + loaded + " textures", failed ? failed + " failed to load" : "");
         });
 
+        // from interface
+        this.events.on("action-reset-world", () => {
+            this.world.planes = [];
+        });
+        this.events.on("selected-tool", () => {
+            this.selectedTool = engineInterface.getOption('tool');
+        });
+
         // load textures
         this.addTexture("missing", null, "purple");
         this.addTexture("debug", "resources/debug.png", "#60006a");
@@ -329,15 +341,47 @@ class Engine2dot5D {
         this.loadTextures();
 
         // inject display into document
-        document.body.appendChild(this.display.canvas);
+        document.getElementById("raycast-view").appendChild(this.display.canvas);
 
         this.world.addPlane(new Plane(this.gridSize*6,this.gridSize,this.gridSize*6,-this.gridSize, {
             texture: "concrete1",
         }));
 
+        // TEMPORARY, this might be intense, better to handle this with events and such
+        setInterval(() => {
+            this.updateSize();
+        }, 1000);
+
         this.loop();
     }
 
+    updateSize() {
+        /* come up with a way of preserving the offset
+        // maybe get percent of top left, then set offset to that percent of new size
+        this.offset = {
+            x: this.size.width/2,
+            y: this.size.height/2
+        }
+        */
+        // offset in percent
+        let offsetPercent = {
+            x: this.offset.x / this.size.width,
+            y: this.offset.y / this.size.height
+        }
+
+        this.size = {
+            width: this.canvas.offsetWidth,
+            height: this.canvas.offsetHeight
+        }
+        this.offset = {
+            x: this.size.width * offsetPercent.x,
+            y: this.size.height * offsetPercent.y
+        }
+
+        this.canvas.width = this.size.width
+        this.canvas.height = this.size.height
+    }
+    
     addTexture(name, src, fallback) {
         this.textures[name] = {
             name: name,
@@ -742,7 +786,7 @@ class Engine2dot5D {
 
         // grid and outline
         if (this.showGrid) {
-            this.setcolor("#eee")
+            this.setcolor("#ccc"); // make this a setting, used #eee
             this.renderGrid()
             this.applyOffset=false;
             this.drawRect( 0, 0, this.size.width, this.size.height)
