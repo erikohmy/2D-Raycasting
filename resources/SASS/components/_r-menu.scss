@@ -26,6 +26,11 @@ menu.r-menu {
         
         cursor: pointer;
         background-color: transparent;
+
+        &.r-disabled {
+            pointer-events: none;
+            opacity: .38;
+        }
     }
 
     button {
@@ -89,6 +94,9 @@ menu.r-menu {
         &:hover:before {
             opacity: .12;
         }
+        &:has(> .r-disabled):before {
+            opacity: 0;
+        }
     }
 
     & li[data-separator] {
@@ -115,10 +123,13 @@ menu.r-menu {
             background-color: #333;
             border-radius: 6px;
             border-top-left-radius: 0;
+            z-index: 100;
+
+            box-shadow: rgba(0,0,0,0.5) 0 0 12px;
 
             menu { // each submenu
-                top: 0;
-                left: 100%;
+                top: -6px;
+                left: calc(100% - 6px);
             }
 
             li:first-child {
@@ -126,6 +137,20 @@ menu.r-menu {
             }
             li:last-child {
                 margin-bottom:6px;
+            }
+            li.r-menu-has-children:after {
+                content: "›";
+                pointer-events: none;
+                position: absolute;
+                top: 50%;
+                right: 7px;
+                transform: translateY(-50%);
+                line-height: 14px;
+                text-align: center;
+                height: 14px;
+                width: 14px;
+                color: currentColor;
+                font-size: 16px;
             }
         }
         & > menu {

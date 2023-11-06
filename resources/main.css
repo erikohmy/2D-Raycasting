@@ -156,6 +156,10 @@ menu.r-menu button, menu.r-menu label, menu.r-menu span {
   cursor: pointer;
   background-color: transparent;
 }
+menu.r-menu button.r-disabled, menu.r-menu label.r-disabled, menu.r-menu span.r-disabled {
+  pointer-events: none;
+  opacity: 0.38;
+}
 menu.r-menu button {
   width: 100%;
 }
@@ -211,6 +215,9 @@ menu.r-menu li:before {
 menu.r-menu li:hover:before {
   opacity: 0.12;
 }
+menu.r-menu li:has(> .r-disabled):before {
+  opacity: 0;
+}
 menu.r-menu li[data-separator] {
   height: 1px;
   margin: 0.3rem 0;
@@ -231,16 +238,32 @@ menu.r-menu > li menu {
   background-color: #333;
   border-radius: 6px;
   border-top-left-radius: 0;
+  z-index: 100;
+  box-shadow: rgba(0, 0, 0, 0.5) 0 0 12px;
 }
 menu.r-menu > li menu menu {
-  top: 0;
-  left: 100%;
+  top: -6px;
+  left: calc(100% - 6px);
 }
 menu.r-menu > li menu li:first-child {
   margin-top: 6px;
 }
 menu.r-menu > li menu li:last-child {
   margin-bottom: 6px;
+}
+menu.r-menu > li menu li.r-menu-has-children:after {
+  content: "›";
+  pointer-events: none;
+  position: absolute;
+  top: 50%;
+  right: 7px;
+  transform: translateY(-50%);
+  line-height: 14px;
+  text-align: center;
+  height: 14px;
+  width: 14px;
+  color: currentColor;
+  font-size: 16px;
 }
 menu.r-menu > li > menu {
   border-top-right-radius: 0 !important;

@@ -12,7 +12,8 @@ let testoptions = [
                 type: "button",
                 text: "Open",
                 name: "open-world",
-                event: "action-open-world"
+                event: "action-open-world",
+                disabled: true
             },
             {
                 type: "button",
@@ -76,7 +77,7 @@ let testoptions = [
             {
                 text: "Color",
                 options: [
-                    {type: "button", text: "Custom", name: "color", value: "custom"},
+                    {type: "button", text: "Custom", name: "color", value: "custom", disabled: true},
                     {type: "separator"},
                     {type: "radio", text: "Random", name: "color", value: undefined, checked: true},
                     {type: "radio", text: "Transparent", name: "color", value: "#00000000"},
@@ -91,7 +92,7 @@ let testoptions = [
             {
                 text: "Opacity",
                 options: [
-                    {type: "button", text: "Custom", name: "opacity", value: "custom"},
+                    {type: "button", text: "Custom", name: "opacity", value: "custom", disabled: true},
                     {type: "separator"},
                     {type: "radio", text: "100%", name: "opacity", value: "1.0", checked: true},
                     {type: "radio", text: "75%", name: "opacity", value: "0.75"},
@@ -125,6 +126,7 @@ class RMenu extends RComponent {
     namePrefix = "rmenu-";
     inputs = [];
     static className = "r-menu";
+    static classNameHasChildren = "r-menu-has-children";
     generateHtml(options) {
         if (! (options instanceof Array)) {
             options = this.options;
@@ -165,6 +167,7 @@ class RMenu extends RComponent {
                 handler.on('click', (target, value) => {
                     this.events.trigger('option-clicked', this, option);
                 });
+                handler.disabled = option.disabled == true;
             }  else if (option.type === "check" || option.type === "radio") {
                 ids.push(option.name);
                 let id = this.namePrefix + this.generateIndexedId(ids, option.name)
@@ -196,12 +199,14 @@ class RMenu extends RComponent {
                 handler.on('change', (target, value) => {
                     this.events.trigger('option-clicked', this, option);
                 });
+                handler.disabled = option.disabled == true;
             } else {
                 item = document.createElement("span");
                 item.innerHTML = option.text;
                 li.appendChild(item);
             }
             if (option.options) {
+                li.classList.add(this.constructor.classNameHasChildren);
                 li.appendChild(this.buildOptions(option.options, false));
             }
             menu.appendChild(li);
